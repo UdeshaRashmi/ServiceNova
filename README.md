@@ -6,7 +6,9 @@ A service request management application for the VisionRoot Software Engineering
 
 ## Current status
 
-The React frontend is implemented. The backend and database are pending. Authentication, dashboards, and request operations need the real API; there is no mock login, seeded browser data, or fabricated dashboard statistics. Test fixtures exist only in automated tests.
+The React frontend and Express backend application logic are implemented. Database persistence and full integration are pending. The running API intentionally reports 503 for database-backed operations until the Prisma adapter is connected; no mock runtime data is used. Backend tests use isolated repository test doubles.
+
+Backend setup, environment variables, security decisions, and the database adapter checklist are in [backend/README.md](backend/README.md).
 
 ## Frontend setup
 
@@ -50,9 +52,20 @@ frontend/
     tests/       Form validation, route access, request-action checks
     types/       User, request, pagination and status types
     utils/       Display formatting
+backend/
+  src/
+    controllers/  Request parsing and HTTP responses
+    middleware/   Authentication, roles, origin/CORS, rate limits
+    repositories/ Persistence contract; database adapter pending
+    routes/       REST API routes
+    services/     Authentication and business rules
+    tests/        Isolated API tests and test-only repository
+    types/        Domain and pagination types
+    utils/        Safe errors and password hashing
+    validators/   Strict Zod schemas
 docs/
   api-contract.md
-  progress.md
+  openapi.json
 ```
 
 Stack: React, TypeScript, Vite, Tailwind CSS, React Router, Axios, React Hook Form, Zod, Lucide, Sonner. Inter is bundled locally. The UI uses reusable panels, status badges, confirmation dialogs, loading skeletons, empty states, and error/retry states.
@@ -71,14 +84,13 @@ Stack: React, TypeScript, Vite, Tailwind CSS, React Router, Axios, React Hook Fo
 | `/profile` | Read-only current account profile |
 | Other paths | 404 |
 
-Frontend guards and action visibility improve UX. The backend must independently enforce authentication, ownership, roles, and status transitions. See [API contract](docs/api-contract.md) and [progress](docs/progress.md).
+Frontend guards and action visibility improve UX. The backend independently enforces authentication, ownership, roles, and status transitions. See [API contract](docs/api-contract.md), [OpenAPI](docs/openapi.json), and [backend checklist](backend/README.md).
 
 ## Pending work
 
-- Express API, password hashing, signed HttpOnly cookie sessions, CSRF/origin checks, validation, authorization, rate limiting, and error handling.
 - Prisma schema, SQLite migrations, controlled administrator seeding, and isolated API test database.
-- End-to-end integration, API tests, OpenAPI documentation, security verification, and final acceptance testing.
-- Backend environment instructions and architecture decisions will be documented with their actual implementation.
+- Prisma repository adapter implementing safe conditional writes, unique-email conflict handling, and persistent session invalidation.
+- End-to-end integration, real-database API tests, browser security verification, and final acceptance testing.
 
 No deployment, screenshots, demo recording, or browser/device acceptance testing is claimed.
 

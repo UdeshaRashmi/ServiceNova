@@ -1,8 +1,10 @@
-# Frontend API contract (backend pending)
+# ServiceNova API contract
 
-These are the response shapes expected by the frontend, not implemented API guarantees. The next development phase must implement or reconcile this contract.
+These shapes are implemented by the Express backend and verified using repository test doubles. Database integration is pending; the runtime returns 503 for persistence-backed operations. See [backend setup](../backend/README.md) and [OpenAPI](openapi.json).
 
 Base URL: `/api`. Requests use JSON and cookie credentials. Successful login and registration must establish the cookie session and return the authenticated user. Public registration must create only `USER` accounts.
+
+All mutations require a trusted `Origin` header. This includes login, registration, logout and non-browser API clients. Logout invalidates all existing sessions for the current user before clearing the cookie. `GET /api/health` reports process liveness; `GET /api/ready` reports database readiness.
 
 ## Response shapes
 
