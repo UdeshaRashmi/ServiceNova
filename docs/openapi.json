@@ -2,8 +2,8 @@
   "openapi": "3.0.3",
   "info": {
     "title": "ServiceNova REST API",
-    "version": "0.1.0",
-    "description": "Backend application logic is implemented. Persistence adapter is pending; database-backed runtime endpoints return 503. Tests currently use isolated repository doubles. Auth cookies are HttpOnly, SameSite=Lax, and Secure in production. Logout invalidates all user sessions. Mutations require a trusted Origin. Other owners’ request IDs return 404. Admin creation uses a controlled seed in the upcoming database phase."
+    "version": "1.0.0",
+    "description": "ServiceNova REST API with Prisma/SQLite persistence. Auth cookies are HttpOnly, SameSite=Lax, and Secure in production. Logout invalidates all user sessions. Every mutation requires an exact configured Origin. Members access only their own requests; other owners’ request IDs return 404. Administrators are created through an explicit controlled seed. API tests cover isolated migrated databases."
   },
   "servers": [
     {
@@ -104,7 +104,7 @@
     },
     "/ready": {
       "get": {
-        "summary": "Database readiness; currently returns 503",
+        "summary": "Database readiness; 503 when tables are unavailable",
         "tags": [
           "Operations"
         ],
@@ -703,6 +703,14 @@
                       "$ref": "#/components/schemas/Request"
                     }
                   }
+                }
+              }
+            },
+            "headers": {
+              "Location": {
+                "description": "Created request URL",
+                "schema": {
+                  "type": "string"
                 }
               }
             }

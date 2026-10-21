@@ -10,3 +10,7 @@ coverage/
 *.db-shm
 *.log
 .DS_Store
+backend/src/generated/
+backend/.test-databases/
+frontend/playwright-report/
+frontend/test-results/

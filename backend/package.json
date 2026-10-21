@@ -7,14 +7,24 @@
     "node": "^22.12.0 || ^24.0.0 || >=26.0.0"
   },
   "scripts": {
+    "predev": "npm run db:generate",
     "dev": "tsx watch --env-file-if-exists=.env src/server.ts",
+    "prebuild": "npm run db:generate",
     "build": "tsc -p tsconfig.json",
     "start": "node --env-file-if-exists=.env dist/server.js",
+    "pretest": "npm run db:generate",
     "test": "vitest run",
-    "format": "prettier --write src package.json tsconfig.json vitest.config.ts",
-    "format:check": "prettier --check src package.json tsconfig.json vitest.config.ts"
+    "db:generate": "node scripts/prisma.mjs generate",
+    "db:migrate": "node scripts/prisma.mjs migrate deploy",
+    "db:status": "node scripts/prisma.mjs migrate status",
+    "db:seed": "tsx --env-file-if-exists=.env src/seed.ts",
+    "test:e2e:server": "tsx src/tests/support/e2e-server.ts",
+    "format": "prettier --write src scripts package.json tsconfig.json vitest.config.ts prisma.config.ts",
+    "format:check": "prettier --check src scripts package.json tsconfig.json vitest.config.ts prisma.config.ts"
   },
   "dependencies": {
+    "@prisma/adapter-better-sqlite3": "^7.10.1",
+    "@prisma/client": "^7.10.1",
     "bcryptjs": "^3.0.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
@@ -32,6 +42,7 @@
     "@types/node": "^24.5.2",
     "@types/supertest": "^6.0.3",
     "prettier": "^3.9.10",
+    "prisma": "^7.10.1",
     "supertest": "^7.1.4",
     "tsx": "^4.20.6",
     "typescript": "~5.9.2",

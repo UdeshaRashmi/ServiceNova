@@ -4,7 +4,9 @@ import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  server: { proxy: { '/api': 'http://localhost:3000' } },
+  server: {
+    proxy: { '/api': process.env.API_PROXY_TARGET || 'http://localhost:3000' },
+  },
   build: {
     rollupOptions: {
       output: {
@@ -16,6 +18,7 @@ export default defineConfig({
     },
   },
   test: {
+    include: ['src/tests/**/*.test.{ts,tsx}'],
     environment: 'jsdom',
     setupFiles: ['./src/tests/setup.ts'],
     clearMocks: true,

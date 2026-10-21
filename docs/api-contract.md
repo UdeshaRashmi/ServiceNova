@@ -1,6 +1,6 @@
 # ServiceNova API contract
 
-These shapes are implemented by the Express backend and verified using repository test doubles. Database integration is pending; the runtime returns 503 for persistence-backed operations. See [backend setup](../backend/README.md) and [OpenAPI](openapi.json).
+These shapes are implemented by Express and the Prisma/SQLite repository, with API tests against real migrated temporary databases. See [backend setup](../backend/README.md), [database design](database.md) and [OpenAPI](openapi.json).
 
 Base URL: `/api`. Requests use JSON and cookie credentials. Successful login and registration must establish the cookie session and return the authenticated user. Public registration must create only `USER` accounts.
 

@@ -1447,6 +1447,9 @@ textarea[aria-invalid='true'] {
   .sidebar.open {
     transform: translateX(0);
   }
+  .sidebar:not(.open) {
+    visibility: hidden;
+  }
   .sidebar-overlay {
     position: fixed;
     inset: 0;
