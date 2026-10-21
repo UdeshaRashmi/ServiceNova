@@ -98,13 +98,24 @@ p {
   line-height: 1.15;
 }
 .brand-icon {
-  display: grid;
-  place-items: center;
+  position: relative;
+  display: block;
+  flex-shrink: 0;
+  overflow: hidden;
   height: 39px;
   width: 39px;
-  background: #2563eb;
-  color: #fff;
-  border-radius: 11px;
+  background: #fff;
+  border-radius: 8px;
+}
+.brand-icon img {
+  /* Frame the symbol in the supplied square image; keep its wordmark below
+     the frame, since the accessible brand name is rendered alongside it. */
+  position: absolute;
+  width: 224%;
+  max-width: none;
+  height: auto;
+  left: -64%;
+  top: -49%;
 }
 .brand-light {
   font-weight: 400;
@@ -1088,7 +1099,7 @@ textarea[aria-invalid='true'] {
   color: #fff;
 }
 .auth-story .brand-icon {
-  background: #2563eb;
+  background: #fff;
 }
 .auth-story .brand small {
   color: #91adc8;

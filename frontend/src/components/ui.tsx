@@ -2,27 +2,13 @@ import { useEffect, useRef, type ReactNode } from 'react';
 import { ArrowUpRight, CircleAlert, Inbox, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { label } from '../utils/format';
+import serviceNovaLogo from '../images/ServiceNova Logo.png';
 
 export function Logo() {
   return (
     <Link to="/" className="brand" aria-label="ServiceNova home">
       <span className="brand-icon">
-        <svg
-          width="27"
-          height="27"
-          viewBox="0 0 32 32"
-          fill="none"
-          aria-hidden="true"
-        >
-          <path
-            d="M24 8H13a6 6 0 0 0 0 12h6a4 4 0 0 1 0 8H8M8 24h11a6 6 0 0 0 0-12h-6a4 4 0 0 1 0-8h11"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-          />
-          <circle cx="24" cy="6" r="3" fill="#5eead4" />
-          <circle cx="8" cy="26" r="3" fill="#5eead4" />
-        </svg>
+        <img src={serviceNovaLogo} alt="" aria-hidden="true" />
       </span>
       <span>
         Service<span className="brand-light">Nova</span>
