@@ -1,4 +1,4 @@
-﻿# ServiceNova
+# ServiceNova
 
 **Simplify Requests. Accelerate Solutions.**
 
@@ -13,6 +13,7 @@ A full-stack service request management application for the VisionRoot Software 
 - Role-scoped dashboard metrics and recent requests from real stored data.
 - Administrator user search, details, request counts and display-name updates.
 - Responsive navigation, validation feedback, skeletons, empty/error states, toasts and confirmation dialogs.
+- Floating navy/teal sidebar with remembered desktop collapse mode, role-specific links, account controls and a mobile drawer with Escape/focus handling.
 - Public Home page with product introduction, features, Submit/Track/Resolve workflow, About ServiceNova and account entry links.
 - Controlled administrator seeding, migrations, OpenAPI and isolated automated tests.
 
@@ -218,7 +219,7 @@ npm.cmd exec -- playwright install chromium
 npm.cmd run test:e2e
 ```
 
-Backend tests include 56 API/security tests using repository doubles and 20 tests against freshly migrated temporary SQLite databases. Frontend tests cover 16 validation, access and UI behaviors. Five browser workflows cover public Home navigation and the authenticated application, using a separate temporary database/API (3010) and Vite (5174). They do not reset or seed the development database. Test-only admin credentials are confined to this isolated environment.
+Backend tests include 56 API/security tests using repository doubles and 20 tests against freshly migrated temporary SQLite databases. Frontend tests cover 21 validation, access and UI behaviors, including sidebar collapse persistence, role-specific navigation and mobile drawer controls. Five browser workflows cover public Home navigation and the authenticated application, using a separate temporary database/API (3010) and Vite (5174). They do not reset or seed the development database. Test-only admin credentials are confined to this isolated environment.
 
 The [acceptance checklist](docs/acceptance.md) records final executed checks and verification limits. Failed browser traces/screenshots appear in ignored `frontend/test-results/`.
 
@@ -228,12 +229,12 @@ Backend: `npm.cmd run build`, then `npm.cmd start`. Apply migrations before star
 
 ## Screenshots and verification
 
-These screenshots were captured from Chromium with real API data in an isolated test database:
+These earlier screenshots were captured from Chromium with real API data in an isolated test database; they predate the latest sidebar redesign:
 
 - [Member dashboard](docs/screenshots/member-dashboard.png)
 - [Mobile request center](docs/screenshots/mobile-requests.png)
 
-Previously verified: both production builds, 76 backend tests, four Chromium full-stack workflows, migration replay/status/schema consistency, compiled API health/readiness, formatting checks, and zero-vulnerability dependency audits. The public Home change passed the frontend build and all 16 frontend tests. Its updated five-workflow browser suite remains unverified: the sandbox could not start its test server and permission to rerun outside the sandbox was declined. See [acceptance details](docs/acceptance.md) for verification scope and remaining tasks.
+Previously verified: both production builds, 76 backend tests, four Chromium full-stack workflows, migration replay/status/schema consistency, compiled API health/readiness, formatting checks, and zero-vulnerability dependency audits. The public Home and sidebar changes passed the frontend build and all 21 frontend tests. Its updated five-workflow browser suite remains unverified: the sandbox could not start its test server and permission to rerun outside the sandbox was declined. See [acceptance details](docs/acceptance.md) for verification scope and remaining tasks.
 
 ## Assumptions and limitations
 

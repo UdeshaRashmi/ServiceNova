@@ -52,6 +52,14 @@
 - [ ] Updated five-workflow Chromium suite: sandbox test server failed with `uv_os_get_passwd`; permission to rerun outside the sandbox was declined
 - [ ] Visual desktop/mobile review of the new Home page
 
+## Sidebar redesign
+
+- [x] Floating sidebar with icon-only desktop collapse mode and persisted layout preference
+- [x] Member/admin navigation, account controls and Home access
+- [x] Mobile drawer Escape handling, background lock and focus restoration
+- [x] All 21 frontend tests, production build and formatting check passed
+- [ ] Visual browser review of the redesigned sidebar, including collapsed and mobile layouts
+
 No public deployment, Firefox/Safari coverage, load test or complete accessibility audit is claimed. Update this checklist only from executed checks. Browser-test account data is isolated from local development data.
 
-Previous full-stack verification totals: 76 backend tests (including 20 with real SQLite), 14 frontend tests, and 4 browser workflows. Current frontend total: 16 passing tests after adding public Home. One mobile drawer accessibility issue found by earlier browser testing was corrected by hiding the closed offscreen sidebar from visibility/focus.
+Previous full-stack verification totals: 76 backend tests (including 20 with real SQLite), 14 frontend tests, and 4 browser workflows. Current frontend total: 21 passing tests after adding public Home and the sidebar redesign. One mobile drawer accessibility issue found by earlier browser testing was corrected by hiding the closed offscreen sidebar from visibility/focus.
