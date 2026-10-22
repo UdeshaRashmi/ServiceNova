@@ -1,79 +1,52 @@
 # Verification and submission checklist
 
-## Implemented and verified
+This file records executed checks separately from checks still pending. The latest implementation includes the public Home, responsive sidebar, request history and dashboard status chart.
 
-- [x] Prisma client generation and TypeScript backend build
-- [x] SQLite initialization through checked-in Prisma migrations
-- [x] Reapplying migrations without resetting data; database schema up to date
-- [x] 56 database-independent API/security tests
-- [x] 20 tests using migrated isolated SQLite databases
-- [x] Registration, duplicate registration, valid/invalid login and logout revocation
-- [x] Authenticated current-user and protected route access
-- [x] Public privilege escalation and member/admin endpoint restrictions
-- [x] Stored request creation/read/update and persistence across client reconnect
-- [x] Owner-only member listing/read/edit/cancel; admin access to all requests
-- [x] Pending-only member edits/cancellation; cancellation preserves records
-- [x] All allowed status transitions; terminal and invalid transitions rejected
-- [x] Request search/filter/sort/pagination and role-scoped dashboard metrics
-- [x] Admin user search/detail/name update and safe user projections
-- [x] Invalid request input, enum values, IDs and missing fields rejected
-- [x] CSRF/origin checks, JSON/body limits, cookie flags, rate limits and safe errors
-- [x] Unique-email race handling, conditional status writes and database constraints
-- [x] Controlled administrator seed is idempotent and refuses member promotion
-- [x] Setup, schema, architecture, API/OpenAPI and limitations documented
+## Verified implementation
 
-## Previous full-stack integration checks (before public Home)
+- [x] React/TypeScript frontend and Express/TypeScript backend production builds
+- [x] 81 backend tests: 56 API/security tests and 25 migrated SQLite integration tests
+- [x] 25 frontend tests covering validation, access, navigation, chart counts and history states
+- [x] Registration, login, HttpOnly cookie sessions and logout session invalidation
+- [x] Member ownership checks and admin-only request/user management
+- [x] Pending-only member edits/cancellation and backend-enforced status transitions
+- [x] Search, status/category/priority filters, sorting and pagination
+- [x] Role-scoped dashboard totals and clickable status chart, including cancellations
+- [x] Persistent activity with actor, time, edited field names and status transitions
+- [x] Activity/request writes share a transaction; rollback is integration-tested
+- [x] Existing requests receive a tracking baseline without invented earlier events
+- [x] SQLite constraints, indexes, conditional updates and safe user projections
+- [x] Additive migrations applied after a local backup; development schema up to date
+- [x] API health and database readiness returned success after restarting the backend
+- [x] README, API reference, OpenAPI and database documentation
 
-- [x] Frontend production build and 14 frontend tests after integration
-- [x] Browser request creation/edit → admin in-progress/resolved lifecycle
-- [x] Browser cancellation, search/filter, profile and logout
-- [x] Browser admin user search/name update
-- [x] Chromium mobile navigation and overflow check (390×844 viewport)
-- [x] All four Chromium end-to-end workflows passed in one run
-- [x] Compiled server started; health and readiness both returned HTTP 200
-- [x] Backend/frontend formatting checks passed
-- [x] Backend/frontend dependency audits reported zero vulnerabilities
-- [x] Local secrets, database, generated clients, dependencies and test output are ignored by Git
-- [x] Prisma migration diff reported no difference between the schema and database
-- [x] Desktop/mobile screenshots inspected and saved under docs/screenshots
+## Browser verification and screenshots
+
+On 22 October 2026, all five current Chromium workflows passed in one run (26 seconds). The test server encountered `uv_os_get_passwd` / `ENOMEM` in the sandbox; the subsequent approved run outside the sandbox completed successfully. Tests covered public Home/mobile navigation, the member/admin lifecycle with history and chart assertions, cancellation/profile/logout, admin user management, and mobile request navigation without horizontal overflow.
+
+- [x] Execute all five current Chromium workflows
+- [x] Capture and inspect updated desktop/mobile screenshots
+- [ ] Review the new Home, sidebar, status chart and request history in a browser
+- [ ] Review on the intended presentation device
+
+The [member dashboard](screenshots/member-dashboard.png) and [mobile requests](screenshots/mobile-requests.png) images were regenerated from the successful run and visually inspected. The dashboard shows the current sidebar and status chart using an isolated stored request; the mobile capture shows the request listing empty state at 390 x 844. A full visual review of the remaining Home/history states is still pending.
+
+To regenerate both images, from `frontend/`:
+
+```powershell
+npm.cmd exec -- playwright install chromium
+npm.cmd run test:e2e
+```
+
+The lifecycle workflow writes `docs/screenshots/member-dashboard.png`; the mobile workflow writes `docs/screenshots/mobile-requests.png`. Tests use a separate temporary migrated database/API on port 3010 and Vite on port 5174. Do not start another process on those ports. Development accounts and data are not used.
 
 ## Submission tasks
 
-- [ ] Record a demonstration video and add its actual link
-- [ ] Review the application on the intended presentation device
-- [x] Database/integration change committed (0836479)
+- [ ] Confirm the repository name is `visionroot-software-engineering-assignment`
+- [ ] Confirm the repository URL is publicly accessible to evaluators
+- [ ] Record a demo video and add its actual Drive link to README
+- [ ] Include source, README, .env.example, migrations/schema, API docs and automated tests
+- [ ] Check that credentials, .env, local databases, dependencies and generated output are excluded from Git
+- [ ] Submit the repository and Drive URLs using the assignment instructions
 
-## Public Home and dashboard routing
-
-- [x] Public `/` with hero, account links, features, Submit/Track/Resolve workflow, About ServiceNova, and footer
-- [x] Protected dashboard moved to `/dashboard`; login defaults and Overview link updated; logo and sidebar Home link return to public Home without logout
-- [x] Home remains available when the API is unavailable
-- [x] All 16 frontend tests passed and production frontend build passed
-- [ ] Updated five-workflow Chromium suite: sandbox test server failed with `uv_os_get_passwd`; permission to rerun outside the sandbox was declined
-- [ ] Visual desktop/mobile review of the new Home page
-
-## Sidebar redesign
-
-- [x] Minimal light sidebar with icon-only desktop collapse mode and persisted layout preference
-- [x] Member/admin navigation, account controls and Home access
-- [x] Mobile drawer Escape handling, background lock and focus restoration
-- [x] All 21 frontend tests, production build and formatting check passed
-- [ ] Visual browser review of the redesigned sidebar, including collapsed and mobile layouts
-
-No public deployment, Firefox/Safari coverage, load test or complete accessibility audit is claimed. Update this checklist only from executed checks. Browser-test account data is isolated from local development data.
-
-Previous full-stack verification totals: 76 backend tests (including 20 with real SQLite), 14 frontend tests, and 4 browser workflows. Current frontend total: 21 passing tests after adding public Home and the sidebar redesign. One mobile drawer accessibility issue found by earlier browser testing was corrected by hiding the closed offscreen sidebar from visibility/focus.
-
-
-## Request history and dashboard chart
-
-- [x] Additive history migration applied to the development database after an ignored local SQLite backup; migration status is up to date
-- [x] Request history records creation, actual field changes and status transitions atomically, with owner/admin access and pagination
-- [x] Existing requests have an explicit tracking baseline; earlier history is not reconstructed
-- [x] Dashboard chart uses role-scoped totals and links to status filters, with a zero-data state
-- [x] Backend production build and all 81 tests passed (56 API/security tests, 25 migrated SQLite integration tests)
-- [x] Frontend production build and all 25 tests passed, including chart counts, history pagination, baseline explanation and retry
-- [x] Windows temporary-database cleanup retries transient ENOTEMPTY after disconnect, within the already verified unique temporary directory
-- [ ] Browser visual review of the history and chart remains pending; the earlier browser-suite limitation above still applies
-
-Commit checkpoint: `feat(requests): add activity history and dashboard status chart`. No commit created automatically.
+No deployment, physical-device testing, Firefox/Safari coverage, load testing or complete accessibility audit is claimed. Optional features beyond history and the status chart are not required for this checkpoint.

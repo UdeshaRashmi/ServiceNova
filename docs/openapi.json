@@ -2,8 +2,8 @@
   "openapi": "3.0.3",
   "info": {
     "title": "ServiceNova REST API",
-    "version": "1.0.0",
-    "description": "ServiceNova REST API with Prisma/SQLite persistence. Auth cookies are HttpOnly, SameSite=Lax, and Secure in production. Logout invalidates all user sessions. Every mutation requires an exact configured Origin. Members access only their own requests; other owners\u00e2\u20ac\u2122 request IDs return 404. Administrators are created through an explicit controlled seed. API tests cover isolated migrated databases."
+    "version": "1.1.0",
+    "description": "ServiceNova REST API with Prisma/SQLite persistence. Auth cookies are HttpOnly, SameSite=Lax, and Secure in production. Logout invalidates all user sessions. Every mutation requires an exact configured Origin. Members access only their own requests; other owners’ request IDs return 404. Administrators are created through an explicit controlled seed. API tests cover isolated migrated databases. Request history is paginated and restricted to the owner or an administrator. Creation, edits and status transitions record activity in the same transaction; existing records begin with a migration-time tracking baseline."
   },
   "servers": [
     {
@@ -37,9 +37,7 @@
     "/health": {
       "get": {
         "summary": "Process liveness",
-        "tags": [
-          "Operations"
-        ],
+        "tags": ["Operations"],
         "security": [],
         "parameters": [],
         "responses": {
@@ -49,18 +47,14 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "required": [
-                    "data"
-                  ],
+                  "required": ["data"],
                   "properties": {
                     "data": {
                       "type": "object",
                       "properties": {
                         "status": {
                           "type": "string",
-                          "enum": [
-                            "ok"
-                          ]
+                          "enum": ["ok"]
                         }
                       }
                     }
@@ -105,9 +99,7 @@
     "/ready": {
       "get": {
         "summary": "Database readiness; 503 when tables are unavailable",
-        "tags": [
-          "Operations"
-        ],
+        "tags": ["Operations"],
         "security": [],
         "parameters": [],
         "responses": {
@@ -117,18 +109,14 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "required": [
-                    "data"
-                  ],
+                  "required": ["data"],
                   "properties": {
                     "data": {
                       "type": "object",
                       "properties": {
                         "status": {
                           "type": "string",
-                          "enum": [
-                            "ready"
-                          ]
+                          "enum": ["ready"]
                         }
                       }
                     }
@@ -173,9 +161,7 @@
     "/auth/register": {
       "post": {
         "summary": "Register a member and establish session",
-        "tags": [
-          "Authentication"
-        ],
+        "tags": ["Authentication"],
         "security": [],
         "parameters": [
           {
@@ -206,9 +192,7 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "required": [
-                    "data"
-                  ],
+                  "required": ["data"],
                   "properties": {
                     "data": {
                       "$ref": "#/components/schemas/User"
@@ -254,9 +238,7 @@
     "/auth/login": {
       "post": {
         "summary": "Sign in and establish session",
-        "tags": [
-          "Authentication"
-        ],
+        "tags": ["Authentication"],
         "security": [],
         "parameters": [
           {
@@ -287,9 +269,7 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "required": [
-                    "data"
-                  ],
+                  "required": ["data"],
                   "properties": {
                     "data": {
                       "$ref": "#/components/schemas/User"
@@ -336,9 +316,7 @@
       "post": {
         "summary": "Invalidate all user sessions and clear cookie",
         "description": "Send the cookie when available. Absent/expired sessions return 204. Persistence failure for a valid session returns 503.",
-        "tags": [
-          "Authentication"
-        ],
+        "tags": ["Authentication"],
         "security": [],
         "parameters": [
           {
@@ -392,9 +370,7 @@
     "/auth/me": {
       "get": {
         "summary": "Current user from repository",
-        "tags": [
-          "Authentication"
-        ],
+        "tags": ["Authentication"],
         "parameters": [],
         "responses": {
           "200": {
@@ -403,9 +379,7 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "required": [
-                    "data"
-                  ],
+                  "required": ["data"],
                   "properties": {
                     "data": {
                       "$ref": "#/components/schemas/User"
@@ -451,9 +425,7 @@
     "/requests/metrics": {
       "get": {
         "summary": "Aggregate metrics across the authorized request scope",
-        "tags": [
-          "Requests"
-        ],
+        "tags": ["Requests"],
         "parameters": [],
         "responses": {
           "200": {
@@ -462,9 +434,7 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "required": [
-                    "data"
-                  ],
+                  "required": ["data"],
                   "properties": {
                     "data": {
                       "$ref": "#/components/schemas/Metrics"
@@ -510,9 +480,7 @@
     "/requests": {
       "get": {
         "summary": "List own requests, or all requests for administrators",
-        "tags": [
-          "Requests"
-        ],
+        "tags": ["Requests"],
         "parameters": [
           {
             "in": "query",
@@ -530,11 +498,7 @@
             "name": "limit",
             "schema": {
               "type": "integer",
-              "enum": [
-                5,
-                10,
-                20
-              ],
+              "enum": [5, 10, 20],
               "default": 10
             },
             "description": "Page size"
@@ -553,12 +517,7 @@
             "name": "category",
             "schema": {
               "type": "string",
-              "enum": [
-                "TECHNICAL",
-                "BILLING",
-                "ACCOUNT",
-                "OTHER"
-              ]
+              "enum": ["TECHNICAL", "BILLING", "ACCOUNT", "OTHER"]
             },
             "description": "Filter by category"
           },
@@ -567,11 +526,7 @@
             "name": "priority",
             "schema": {
               "type": "string",
-              "enum": [
-                "LOW",
-                "MEDIUM",
-                "HIGH"
-              ]
+              "enum": ["LOW", "MEDIUM", "HIGH"]
             },
             "description": "Filter by priority"
           },
@@ -580,12 +535,7 @@
             "name": "status",
             "schema": {
               "type": "string",
-              "enum": [
-                "PENDING",
-                "IN_PROGRESS",
-                "RESOLVED",
-                "CANCELLED"
-              ]
+              "enum": ["PENDING", "IN_PROGRESS", "RESOLVED", "CANCELLED"]
             },
             "description": "Filter by status"
           },
@@ -594,10 +544,7 @@
             "name": "sort",
             "schema": {
               "type": "string",
-              "enum": [
-                "newest",
-                "oldest"
-              ],
+              "enum": ["newest", "oldest"],
               "default": "newest"
             },
             "description": "Creation time ordering"
@@ -610,10 +557,7 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "required": [
-                    "data",
-                    "pagination"
-                  ],
+                  "required": ["data", "pagination"],
                   "properties": {
                     "data": {
                       "type": "array",
@@ -663,9 +607,7 @@
       },
       "post": {
         "summary": "Create member-owned pending request",
-        "tags": [
-          "Requests"
-        ],
+        "tags": ["Requests"],
         "parameters": [
           {
             "in": "header",
@@ -695,9 +637,7 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "required": [
-                    "data"
-                  ],
+                  "required": ["data"],
                   "properties": {
                     "data": {
                       "$ref": "#/components/schemas/Request"
@@ -751,9 +691,7 @@
     "/requests/{id}": {
       "get": {
         "summary": "Read authorized request details",
-        "tags": [
-          "Requests"
-        ],
+        "tags": ["Requests"],
         "parameters": [
           {
             "in": "path",
@@ -772,9 +710,7 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "required": [
-                    "data"
-                  ],
+                  "required": ["data"],
                   "properties": {
                     "data": {
                       "$ref": "#/components/schemas/Request"
@@ -818,9 +754,7 @@
       },
       "patch": {
         "summary": "Edit own pending request; member only",
-        "tags": [
-          "Requests"
-        ],
+        "tags": ["Requests"],
         "parameters": [
           {
             "in": "path",
@@ -859,9 +793,7 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "required": [
-                    "data"
-                  ],
+                  "required": ["data"],
                   "properties": {
                     "data": {
                       "$ref": "#/components/schemas/Request"
@@ -905,9 +837,7 @@
       },
       "delete": {
         "summary": "Cancel own pending request; no physical deletion",
-        "tags": [
-          "Requests"
-        ],
+        "tags": ["Requests"],
         "parameters": [
           {
             "in": "path",
@@ -969,10 +899,8 @@
     "/requests/{id}/status": {
       "patch": {
         "summary": "Administrator status transition",
-        "description": "ADMIN only. PENDING \u00e2\u2020\u2019 IN_PROGRESS/CANCELLED. IN_PROGRESS \u00e2\u2020\u2019 RESOLVED/CANCELLED. RESOLVED/CANCELLED are terminal. Same-state changes are rejected.",
-        "tags": [
-          "Requests"
-        ],
+        "description": "ADMIN only. PENDING → IN_PROGRESS/CANCELLED. IN_PROGRESS → RESOLVED/CANCELLED. RESOLVED/CANCELLED are terminal. Same-state changes are rejected.",
+        "tags": ["Requests"],
         "parameters": [
           {
             "in": "path",
@@ -1001,18 +929,11 @@
               "schema": {
                 "type": "object",
                 "additionalProperties": false,
-                "required": [
-                  "status"
-                ],
+                "required": ["status"],
                 "properties": {
                   "status": {
                     "type": "string",
-                    "enum": [
-                      "PENDING",
-                      "IN_PROGRESS",
-                      "RESOLVED",
-                      "CANCELLED"
-                    ]
+                    "enum": ["PENDING", "IN_PROGRESS", "RESOLVED", "CANCELLED"]
                   }
                 }
               }
@@ -1026,9 +947,7 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "required": [
-                    "data"
-                  ],
+                  "required": ["data"],
                   "properties": {
                     "data": {
                       "$ref": "#/components/schemas/Request"
@@ -1074,9 +993,7 @@
     "/users": {
       "get": {
         "summary": "Administrator user search/list with request counts",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "parameters": [
           {
             "in": "query",
@@ -1094,11 +1011,7 @@
             "name": "limit",
             "schema": {
               "type": "integer",
-              "enum": [
-                5,
-                10,
-                20
-              ],
+              "enum": [5, 10, 20],
               "default": 10
             },
             "description": "Page size"
@@ -1120,10 +1033,7 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "required": [
-                    "data",
-                    "pagination"
-                  ],
+                  "required": ["data", "pagination"],
                   "properties": {
                     "data": {
                       "type": "array",
@@ -1175,9 +1085,7 @@
     "/users/{id}": {
       "get": {
         "summary": "Administrator user detail",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "parameters": [
           {
             "in": "path",
@@ -1196,9 +1104,7 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "required": [
-                    "data"
-                  ],
+                  "required": ["data"],
                   "properties": {
                     "data": {
                       "$ref": "#/components/schemas/User"
@@ -1242,9 +1148,7 @@
       },
       "patch": {
         "summary": "Administrator display-name update; no role changes",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Users"],
         "parameters": [
           {
             "in": "path",
@@ -1273,9 +1177,7 @@
               "schema": {
                 "type": "object",
                 "additionalProperties": false,
-                "required": [
-                  "name"
-                ],
+                "required": ["name"],
                 "properties": {
                   "name": {
                     "type": "string",
@@ -1294,9 +1196,7 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "required": [
-                    "data"
-                  ],
+                  "required": ["data"],
                   "properties": {
                     "data": {
                       "$ref": "#/components/schemas/User"
@@ -1342,9 +1242,7 @@
     "/requests/{id}/history": {
       "get": {
         "summary": "List request activity, newest first; owner or administrator only",
-        "tags": [
-          "Requests"
-        ],
+        "tags": ["Requests"],
         "parameters": [
           {
             "in": "path",
@@ -1371,11 +1269,7 @@
             "name": "limit",
             "schema": {
               "type": "integer",
-              "enum": [
-                5,
-                10,
-                20
-              ],
+              "enum": [5, 10, 20],
               "default": 10
             },
             "description": "Page size"
@@ -1388,10 +1282,7 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "required": [
-                    "data",
-                    "pagination"
-                  ],
+                  "required": ["data", "pagination"],
                   "properties": {
                     "data": {
                       "type": "array",
@@ -1460,16 +1351,11 @@
     "schemas": {
       "Error": {
         "type": "object",
-        "required": [
-          "error"
-        ],
+        "required": ["error"],
         "properties": {
           "error": {
             "type": "object",
-            "required": [
-              "code",
-              "message"
-            ],
+            "required": ["code", "message"],
             "properties": {
               "code": {
                 "type": "string"
@@ -1497,14 +1383,7 @@
       },
       "User": {
         "type": "object",
-        "required": [
-          "id",
-          "name",
-          "email",
-          "role",
-          "createdAt",
-          "updatedAt"
-        ],
+        "required": ["id", "name", "email", "role", "createdAt", "updatedAt"],
         "properties": {
           "id": {
             "type": "string",
@@ -1519,10 +1398,7 @@
           },
           "role": {
             "type": "string",
-            "enum": [
-              "USER",
-              "ADMIN"
-            ]
+            "enum": ["USER", "ADMIN"]
           },
           "createdAt": {
             "type": "string",
@@ -1546,11 +1422,7 @@
       "Register": {
         "type": "object",
         "additionalProperties": false,
-        "required": [
-          "name",
-          "email",
-          "password"
-        ],
+        "required": ["name", "email", "password"],
         "properties": {
           "name": {
             "type": "string",
@@ -1574,10 +1446,7 @@
       "Login": {
         "type": "object",
         "additionalProperties": false,
-        "required": [
-          "email",
-          "password"
-        ],
+        "required": ["email", "password"],
         "properties": {
           "email": {
             "type": "string",
@@ -1596,12 +1465,7 @@
       "RequestInput": {
         "type": "object",
         "additionalProperties": false,
-        "required": [
-          "title",
-          "description",
-          "category",
-          "priority"
-        ],
+        "required": ["title", "description", "category", "priority"],
         "properties": {
           "title": {
             "type": "string",
@@ -1615,20 +1479,11 @@
           },
           "category": {
             "type": "string",
-            "enum": [
-              "TECHNICAL",
-              "BILLING",
-              "ACCOUNT",
-              "OTHER"
-            ]
+            "enum": ["TECHNICAL", "BILLING", "ACCOUNT", "OTHER"]
           },
           "priority": {
             "type": "string",
-            "enum": [
-              "LOW",
-              "MEDIUM",
-              "HIGH"
-            ]
+            "enum": ["LOW", "MEDIUM", "HIGH"]
           }
         }
       },
@@ -1649,20 +1504,11 @@
           },
           "category": {
             "type": "string",
-            "enum": [
-              "TECHNICAL",
-              "BILLING",
-              "ACCOUNT",
-              "OTHER"
-            ]
+            "enum": ["TECHNICAL", "BILLING", "ACCOUNT", "OTHER"]
           },
           "priority": {
             "type": "string",
-            "enum": [
-              "LOW",
-              "MEDIUM",
-              "HIGH"
-            ]
+            "enum": ["LOW", "MEDIUM", "HIGH"]
           }
         }
       },
@@ -1696,29 +1542,15 @@
           },
           "category": {
             "type": "string",
-            "enum": [
-              "TECHNICAL",
-              "BILLING",
-              "ACCOUNT",
-              "OTHER"
-            ]
+            "enum": ["TECHNICAL", "BILLING", "ACCOUNT", "OTHER"]
           },
           "priority": {
             "type": "string",
-            "enum": [
-              "LOW",
-              "MEDIUM",
-              "HIGH"
-            ]
+            "enum": ["LOW", "MEDIUM", "HIGH"]
           },
           "status": {
             "type": "string",
-            "enum": [
-              "PENDING",
-              "IN_PROGRESS",
-              "RESOLVED",
-              "CANCELLED"
-            ]
+            "enum": ["PENDING", "IN_PROGRESS", "RESOLVED", "CANCELLED"]
           },
           "userId": {
             "type": "string",
@@ -1739,12 +1571,7 @@
       },
       "Pagination": {
         "type": "object",
-        "required": [
-          "page",
-          "limit",
-          "totalItems",
-          "totalPages"
-        ],
+        "required": ["page", "limit", "totalItems", "totalPages"],
         "properties": {
           "page": {
             "type": "integer",
@@ -1752,11 +1579,7 @@
           },
           "limit": {
             "type": "integer",
-            "enum": [
-              5,
-              10,
-              20
-            ]
+            "enum": [5, 10, 20]
           },
           "totalItems": {
             "type": "integer",
@@ -1770,12 +1593,7 @@
       },
       "Metrics": {
         "type": "object",
-        "required": [
-          "total",
-          "pending",
-          "inProgress",
-          "resolved"
-        ],
+        "required": ["total", "pending", "inProgress", "resolved"],
         "properties": {
           "total": {
             "type": "integer",
@@ -1804,8 +1622,10 @@
         "type": "object",
         "required": [
           "id",
-          "type",
+          "requestId",
+          "actorId",
           "actor",
+          "type",
           "fromStatus",
           "toStatus",
           "changedFields",
@@ -1826,12 +1646,7 @@
           },
           "type": {
             "type": "string",
-            "enum": [
-              "CREATED",
-              "UPDATED",
-              "STATUS_CHANGED",
-              "TRACKING_STARTED"
-            ]
+            "enum": ["CREATED", "UPDATED", "STATUS_CHANGED", "TRACKING_STARTED"]
           },
           "actor": {
             "type": "object",
@@ -1844,29 +1659,18 @@
               "name": {
                 "type": "string"
               }
-            }
+            },
+            "required": ["id", "name"]
           },
           "fromStatus": {
             "type": "string",
             "nullable": true,
-            "enum": [
-              "PENDING",
-              "IN_PROGRESS",
-              "RESOLVED",
-              "CANCELLED",
-              null
-            ]
+            "enum": ["PENDING", "IN_PROGRESS", "RESOLVED", "CANCELLED", null]
           },
           "toStatus": {
             "type": "string",
             "nullable": true,
-            "enum": [
-              "PENDING",
-              "IN_PROGRESS",
-              "RESOLVED",
-              "CANCELLED",
-              null
-            ]
+            "enum": ["PENDING", "IN_PROGRESS", "RESOLVED", "CANCELLED", null]
           },
           "changedFields": {
             "type": "string",
@@ -1912,7 +1716,7 @@
         }
       },
       "Error404": {
-        "description": "Not found; other owners\u00e2\u20ac\u2122 requests also use 404",
+        "description": "Not found; other owners’ requests also use 404",
         "content": {
           "application/json": {
             "schema": {

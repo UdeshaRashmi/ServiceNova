@@ -106,6 +106,9 @@ test('member creates and edits; admin progresses and resolves the same stored re
   await expect(
     page.getByRole('heading', { name: `${title} updated`, exact: true }),
   ).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: 'Updated Title', exact: true }),
+  ).toBeVisible();
 
   const context = await browser.newContext({ baseURL });
   const admin = await context.newPage();
@@ -142,12 +145,25 @@ test('member creates and edits; admin progresses and resolves the same stored re
     await expect(
       page.getByText('This request is resolved and no longer accepts changes.'),
     ).toBeVisible();
+    await expect(
+      page.getByRole('heading', {
+        name: 'In Progress → Resolved',
+        exact: true,
+      }),
+    ).toBeVisible();
     await page.goto('/dashboard');
     await expect(
       page.getByRole('link', { name: `${title} updated`, exact: true }),
     ).toBeVisible();
+    await expect(
+      page.getByRole('link', {
+        name: 'Resolved: 1 of 1 requests',
+        exact: true,
+      }),
+    ).toBeVisible();
+    await page.evaluate(() => document.fonts.ready);
     await page.screenshot({
-      path: 'test-results/dashboard.png',
+      path: '../docs/screenshots/member-dashboard.png',
       fullPage: true,
     });
   } finally {
@@ -258,7 +274,7 @@ test('mobile navigation stays usable without page overflow', async ({
     ),
   ).toBe(true);
   await page.screenshot({
-    path: 'test-results/mobile-requests.png',
+    path: '../docs/screenshots/mobile-requests.png',
     fullPage: true,
   });
 });

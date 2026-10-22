@@ -19,15 +19,15 @@ A full-stack service request management application for the VisionRoot Software 
 
 ## Technology and architecture
 
-| Layer | Technology |
-| --- | --- |
-| Frontend | React, TypeScript, Vite, Tailwind CSS, React Router |
-| Forms and HTTP | React Hook Form, Zod, Axios |
-| Interface | Locally bundled Inter, Lucide React, Sonner |
-| Backend | Node.js, Express 5, TypeScript, Zod |
-| Authentication | bcryptjs, signed JWTs in HttpOnly cookies |
-| Database | Prisma ORM 7, SQLite, better-sqlite3 adapter |
-| Tests | Vitest, Supertest, React Testing Library, Playwright Chromium |
+| Layer          | Technology                                                    |
+| -------------- | ------------------------------------------------------------- |
+| Frontend       | React, TypeScript, Vite, Tailwind CSS, React Router           |
+| Forms and HTTP | React Hook Form, Zod, Axios                                   |
+| Interface      | Locally bundled Inter, Lucide React, Sonner                   |
+| Backend        | Node.js, Express 5, TypeScript, Zod                           |
+| Authentication | bcryptjs, signed JWTs in HttpOnly cookies                     |
+| Database       | Prisma ORM 7, SQLite, better-sqlite3 adapter                  |
+| Tests          | Vitest, Supertest, React Testing Library, Playwright Chromium |
 
 React communicates with Express through `/api`. Middleware verifies origins, sessions and roles; services enforce ownership and request rules; the Prisma repository performs database queries and conditional writes. See [architecture and database schema](docs/database.md).
 
@@ -124,16 +124,16 @@ Keep the Studio terminal running while browsing. Stop it with `Ctrl+C`. If Studi
 
 See [backend/.env.example](backend/.env.example) and [frontend/.env.example](frontend/.env.example).
 
-| Variable | Purpose |
-| --- | --- |
-| `NODE_ENV` | development, test or production |
-| `PORT` | API port, default 3000 |
-| `JWT_SECRET` | Required random signing secret, 32+ characters |
-| `SESSION_TTL_SECONDS` | 300–86400 seconds; default 28800 (8 hours) |
-| `FRONTEND_ORIGINS` | Exact allowed browser origins; default localhost:5173 and 127.0.0.1:5173; production requires HTTPS |
-| `DATABASE_URL` | Local SQLite file URL; relative paths resolve against backend/; required explicitly in production |
-| `ADMIN_NAME`, `ADMIN_EMAIL`, `ADMIN_PASSWORD` | Used only by the explicit administrator seed command |
-| `VITE_API_BASE_URL` | Frontend API base URL, default /api; public, never a place for secrets |
+| Variable                                      | Purpose                                                                                             |
+| --------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `NODE_ENV`                                    | development, test or production                                                                     |
+| `PORT`                                        | API port, default 3000                                                                              |
+| `JWT_SECRET`                                  | Required random signing secret, 32+ characters                                                      |
+| `SESSION_TTL_SECONDS`                         | 300–86400 seconds; default 28800 (8 hours)                                                          |
+| `FRONTEND_ORIGINS`                            | Exact allowed browser origins; default localhost:5173 and 127.0.0.1:5173; production requires HTTPS |
+| `DATABASE_URL`                                | Local SQLite file URL; relative paths resolve against backend/; required explicitly in production   |
+| `ADMIN_NAME`, `ADMIN_EMAIL`, `ADMIN_PASSWORD` | Used only by the explicit administrator seed command                                                |
+| `VITE_API_BASE_URL`                           | Frontend API base URL, default /api; public, never a place for secrets                              |
 
 ## Administrator setup
 
@@ -163,14 +163,14 @@ Other members' request IDs return 404 to avoid disclosing resource existence. Ro
 
 ## Business rules
 
-| Action | Member | Administrator |
-| --- | --- | --- |
-| View requests | Own only | All |
-| Create request | Own, automatically PENDING | Use a member account |
-| Edit request | Own, PENDING only | Use a member account |
-| Cancel request | Own, PENDING only | Use status endpoint |
-| Change status | No arbitrary changes | Allowed transitions only |
-| Manage users | No | Search/view/update display names |
+| Action         | Member                     | Administrator                    |
+| -------------- | -------------------------- | -------------------------------- |
+| View requests  | Own only                   | All                              |
+| Create request | Own, automatically PENDING | Use a member account             |
+| Edit request   | Own, PENDING only          | Use a member account             |
+| Cancel request | Own, PENDING only          | Use status endpoint              |
+| Change status  | No arbitrary changes       | Allowed transitions only         |
+| Manage users   | No                         | Search/view/update display names |
 
 ```text
 PENDING     -> IN_PROGRESS or CANCELLED
@@ -184,17 +184,17 @@ DELETE cancels a request and preserves its history. General PATCH never accepts 
 
 All resource responses use `{data: ...}`. Lists also include `pagination: {page,limit,totalItems,totalPages}`. Errors use `{error:{code,message,details?}}`.
 
-| Methods | Paths |
-| --- | --- |
-| POST | /api/auth/register, /api/auth/login, /api/auth/logout |
-| GET | /api/auth/me |
-| GET, POST | /api/requests |
-| GET, PATCH, DELETE | /api/requests/:id |
-| PATCH | /api/requests/:id/status (admin only) |
-| GET | /api/requests/metrics |
-| GET | /api/users, /api/users/:id (admin only) |
-| PATCH | /api/users/:id (admin display-name update) |
-| GET | /api/health, /api/ready |
+| Methods            | Paths                                                 |
+| ------------------ | ----------------------------------------------------- |
+| POST               | /api/auth/register, /api/auth/login, /api/auth/logout |
+| GET                | /api/auth/me                                          |
+| GET, POST          | /api/requests                                         |
+| GET, PATCH, DELETE | /api/requests/:id                                     |
+| PATCH              | /api/requests/:id/status (admin only)                 |
+| GET                | /api/requests/metrics                                 |
+| GET                | /api/users, /api/users/:id (admin only)               |
+| PATCH              | /api/users/:id (admin display-name update)            |
+| GET                | /api/health, /api/ready                               |
 
 See [API contract](docs/api-contract.md) and import [openapi.json](docs/openapi.json) into Swagger Editor or Postman for schemas, authentication, restrictions and error codes.
 
@@ -229,12 +229,12 @@ Backend: `npm.cmd run build`, then `npm.cmd start`. Apply migrations before star
 
 ## Screenshots and verification
 
-These earlier screenshots were captured from Chromium with real API data in an isolated test database; they predate the latest sidebar redesign:
+These screenshots were regenerated and visually inspected on 22 October 2026 using Chromium and an isolated test database. The desktop dashboard includes the current sidebar and status chart; the mobile request center shows its empty state:
 
 - [Member dashboard](docs/screenshots/member-dashboard.png)
 - [Mobile request center](docs/screenshots/mobile-requests.png)
 
-Previously verified: both production builds, 76 backend tests, four Chromium full-stack workflows, migration replay/status/schema consistency, compiled API health/readiness, formatting checks, and zero-vulnerability dependency audits. The public Home and sidebar changes passed the frontend build and all 21 frontend tests. Its updated five-workflow browser suite remains unverified: the sandbox could not start its test server and permission to rerun outside the sandbox was declined. See [acceptance details](docs/acceptance.md) for verification scope and remaining tasks.
+Previously verified: both production builds, 76 backend tests, four Chromium full-stack workflows, migration replay/status/schema consistency, compiled API health/readiness, formatting checks, and zero-vulnerability dependency audits. The public Home and sidebar changes passed the frontend build and all 21 frontend tests. The updated five-workflow Chromium suite passed on 22 October 2026 after an approved run outside the sandbox, including history and dashboard chart assertions. See [acceptance details](docs/acceptance.md) for verification scope and remaining tasks.
 
 ## Assumptions and limitations
 
@@ -252,4 +252,4 @@ Demo video: to be recorded; see [demo checklist](docs/demo-checklist.md).
 
 The dashboard shows a clickable status breakdown from role-scoped database totals, including cancellations. Request details include paginated activity with actor, time, edited field names and status changes. Existing requests start with a clearly labelled tracking baseline. Apply the additive migration with `cd backend` then `npm.cmd run db:migrate` and restart the backend after updating. No database reset or reseed is needed.
 
-Verified for this update: both production builds, 81 backend tests, 25 frontend tests and database migration status. Browser visual verification of the new chart and history remains pending.
+Verified for this update: both production builds, 81 backend tests, 25 frontend tests and database migration status. All five current Chromium workflows passed; refreshed desktop/mobile screenshots were inspected. A full visual review of the remaining Home/history states remains pending.

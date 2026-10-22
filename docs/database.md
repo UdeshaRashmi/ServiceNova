@@ -17,6 +17,16 @@ erDiagram
     datetime createdAt
     datetime updatedAt
   }
+  RequestActivity {
+    int id PK
+    string requestId FK
+    string actorId FK
+    enum type
+    enum fromStatus
+    enum toStatus
+    string changedFields
+    datetime createdAt
+  }
   ServiceRequest {
     string id PK
     string title
@@ -85,3 +95,9 @@ SQLite is suitable for local demonstration and a single small server. PostgreSQL
 ## Request activity
 
 The additive `20261022000100_request_activity` migration adds RequestActivity without replacing requests or users. An auto-incrementing activity ID provides stable newest-first pagination with an index on `(requestId, id)`. Events reference the request (cascade on deletion) and optional actor (set null on deletion). Only actor ID/current display name is exposed. Changed fields contain names, not historical descriptions. Each mutation and event share a transaction; failed writes roll back both. Existing requests receive a TRACKING_STARTED event at migration time with their current status. Earlier changes are not fabricated.
+
+## Viewing local data
+
+From `backend/`, start Prisma Studio using the [manual instructions in README](../README.md). On Windows, Studio needs an absolute SQLite file URL; avoid copying a URL for another machine. Tables are User, ServiceRequest and RequestActivity. Treat password hashes and account information as private. Viewing data does not require resetting migrations or reseeding accounts.
+
+If the API reports database unavailability, check `npm.cmd run db:status`, apply checked-in migrations with `npm.cmd run db:migrate`, regenerate the client with `npm.cmd run db:generate`, then restart the single backend process. An API listener error can indicate that another process already occupies port 3000; it does not by itself indicate a broken database.

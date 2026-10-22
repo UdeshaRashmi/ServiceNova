@@ -12,27 +12,27 @@ Single resource: `{ "data": { ... } }`.
 
 Lists: `{ "data": [], "pagination": { "page": 1, "limit": 10, "totalItems": 0, "totalPages": 0 } }`.
 
-Error: `{ "error": { "message": "A safe, user-facing message" } }`, with an appropriate HTTP status. Authentication failure is 401; role restrictions are 403. Other users' request IDs should return 404 to avoid revealing existence. No password hashes or internal errors may be returned.
+Error: `{ "error": { "code": "ERROR_CODE", "message": "A safe, user-facing message" } }`, with an appropriate HTTP status. Authentication failure is 401; role restrictions are 403. Other users' request IDs should return 404 to avoid revealing existence. No password hashes or internal errors may be returned.
 
 ## Endpoints
 
-| Method | Path | Input / response |
-| --- | --- | --- |
-| POST | `/auth/register` | `{name,email,password}` → user and session |
-| POST | `/auth/login` | `{email,password}` → user and session |
-| POST | `/auth/logout` | Clear session; 204 or success body |
-| GET | `/auth/me` | Current user, or 401 |
-| GET | `/requests/metrics` | `{data:{total,pending,inProgress,resolved,totalUsers?}}`; counts scoped by role |
-| GET | `/requests` | Paginated requests scoped by role |
-| POST | `/requests` | `{title,description,category,priority}` → request |
-| GET | `/requests/:id` | Request; authorized owner information |
-| GET | `/requests/:id/history` | Owner/admin activity, newest first; `page`, `limit` (5/10/20) |
-| PATCH | `/requests/:id` | Member updates own pending request fields |
-| DELETE | `/requests/:id` | Cancel own pending request; **no hard deletion** |
-| PATCH | `/requests/:id/status` | Administrator `{status}` transition |
-| GET | `/users` | Administrator paginated users |
-| GET | `/users/:id` | Administrator user detail |
-| PATCH | `/users/:id` | Administrator `{name}` update; no role changes |
+| Method | Path                    | Input / response                                                                |
+| ------ | ----------------------- | ------------------------------------------------------------------------------- |
+| POST   | `/auth/register`        | `{name,email,password}` → user and session                                      |
+| POST   | `/auth/login`           | `{email,password}` → user and session                                           |
+| POST   | `/auth/logout`          | Clear session; 204 or success body                                              |
+| GET    | `/auth/me`              | Current user, or 401                                                            |
+| GET    | `/requests/metrics`     | `{data:{total,pending,inProgress,resolved,totalUsers?}}`; counts scoped by role |
+| GET    | `/requests`             | Paginated requests scoped by role                                               |
+| POST   | `/requests`             | `{title,description,category,priority}` → request                               |
+| GET    | `/requests/:id`         | Request; authorized owner information                                           |
+| GET    | `/requests/:id/history` | Owner/admin activity, newest first; `page`, `limit` (5/10/20)                   |
+| PATCH  | `/requests/:id`         | Member updates own pending request fields                                       |
+| DELETE | `/requests/:id`         | Cancel own pending request; **no hard deletion**                                |
+| PATCH  | `/requests/:id/status`  | Administrator `{status}` transition                                             |
+| GET    | `/users`                | Administrator paginated users                                                   |
+| GET    | `/users/:id`            | Administrator user detail                                                       |
+| PATCH  | `/users/:id`            | Administrator `{name}` update; no role changes                                  |
 
 Register `/requests/metrics` before the parameter route. Metrics must aggregate all role-scoped records, independently of the list page. `totalUsers` is admin-only.
 
@@ -57,3 +57,15 @@ Request: `id`, `title`, `description`, `category`, `priority`, `status`, `userId
 Production cookies must be HttpOnly, Secure and use an appropriate SameSite policy. The backend must verify request origins or use CSRF tokens for mutations. Cookies are authoritative; frontend state is not an authorization boundary.
 
 History returns the standard paginated envelope. Each event contains `id`, `requestId`, `actorId`, `actor: {id,name} | null`, `type`, `fromStatus`, `toStatus`, `changedFields`, and `createdAt`. Types: CREATED, UPDATED, STATUS_CHANGED, TRACKING_STARTED. Updates record changed field names, without storing prior text. No-op edits and rejected actions create no events. Existing requests get a migration-time TRACKING_STARTED baseline; earlier changes cannot be reconstructed. Creation, edits and transitions commit together with their event.
+
+## Trying the API
+
+Run the backend on port 3000 and the frontend on port 5173. Browser requests use the Vite `/api` proxy with credentials enabled. For Postman or another HTTP client, retain the login cookie and supply `Origin: http://localhost:5173` on mutations (or the configured allowed frontend origin).
+
+1. `POST /api/auth/login` with your own `{email,password}` and retain the returned cookie.
+2. `GET /api/requests?page=1&limit=10&status=PENDING&sort=newest`.
+3. `GET /api/requests/{id}/history?page=1&limit=10` as the owner or an administrator.
+4. As admin, `PATCH /api/requests/{id}/status` with `{"status":"IN_PROGRESS"}` and the trusted Origin header.
+5. Read history again to see the persisted transition and safe actor projection.
+
+Validation errors may include `error.details: [{field,message}]`. Common statuses: 400 invalid input, 401 missing/expired session, 403 restricted role or origin, 404 missing/inaccessible resource, 409 duplicate/conflicting action, 429 rate limit, and 503 database readiness failure. Read-only liveness/readiness endpoints are `/api/health` and `/api/ready`.
