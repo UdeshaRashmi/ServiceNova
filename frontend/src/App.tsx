@@ -18,6 +18,7 @@ import { CreateRequest, EditRequest } from './pages/RequestEditor';
 import { RequestDetail } from './pages/RequestDetail';
 import { UserDetail, Users } from './pages/Users';
 import { Profile } from './pages/Profile';
+import { Home } from './pages/Home';
 
 function Protected({ admin = false }: { admin?: boolean }) {
   const { user, loading, error, retry } = useAuth();
@@ -59,7 +60,7 @@ function NotFound() {
       <span>404</span>
       <h1>A little off track.</h1>
       <p>We couldn’t find that page. Let’s get you back to your workspace.</p>
-      <Link className="btn primary" to="/">
+      <Link className="btn primary" to="/dashboard">
         Back to overview
       </Link>
     </div>
@@ -73,6 +74,7 @@ export function App() {
       </a>
       <AuthProvider>
         <Routes>
+          <Route path="/" element={<Home />} />
           <Route path="/login" element={<AuthPage />} />
           <Route
             path="/register"
@@ -80,7 +82,7 @@ export function App() {
           />
           <Route element={<Protected />}>
             <Route element={<AppLayout />}>
-              <Route index element={<Dashboard />} />
+              <Route path="dashboard" element={<Dashboard />} />
               <Route path="requests" element={<RequestList />} />
               <Route path="requests/new" element={<CreateRequest />} />
               <Route path="requests/:id" element={<RequestDetail />} />

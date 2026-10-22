@@ -14,6 +14,7 @@ async function register(page: Page) {
   await expect(
     page.getByRole('heading', { name: 'Welcome back, Browser.' }),
   ).toBeVisible();
+  await expect(page).toHaveURL(/\/dashboard$/);
   return email;
 }
 async function loginAdmin(page: Page) {
@@ -26,6 +27,7 @@ async function loginAdmin(page: Page) {
   await expect(
     page.getByRole('heading', { name: 'Welcome back, Browser.' }),
   ).toBeVisible();
+  await expect(page).toHaveURL(/\/dashboard$/);
 }
 async function create(page: Page, title: string) {
   await page.goto('/requests/new');
@@ -44,6 +46,51 @@ async function create(page: Page, title: string) {
   ).toBeVisible();
   return new URL(page.url()).pathname;
 }
+
+test('public home presents the product and supports mobile navigation', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await expect(
+    page.getByRole('heading', { name: /Every request/ }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: 'Three steps. A clearer path.' }),
+  ).toBeVisible();
+  await page.screenshot({
+    path: 'test-results/home-desktop.png',
+    fullPage: true,
+  });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page
+    .getByRole('button', { name: 'Open main navigation', exact: true })
+    .click();
+  await page
+    .getByRole('navigation', { name: 'Main navigation', exact: true })
+    .getByRole('link', { name: 'About', exact: true })
+    .click();
+  await expect(
+    page.getByRole('heading', { name: /Less back-and-forth/ }),
+  ).toBeInViewport();
+  await expect(
+    page.getByRole('button', { name: 'Open main navigation', exact: true }),
+  ).toHaveAttribute('aria-expanded', 'false');
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= window.innerWidth,
+    ),
+  ).toBe(true);
+  await page.goto('/');
+  await page.screenshot({
+    path: 'test-results/home-mobile.png',
+    fullPage: true,
+  });
+  await page
+    .getByRole('link', { name: 'Get started', exact: true })
+    .first()
+    .click();
+  await expect(page).toHaveURL(/\/register$/);
+});
 
 test('member creates and edits; admin progresses and resolves the same stored request', async ({
   page,
@@ -95,7 +142,7 @@ test('member creates and edits; admin progresses and resolves the same stored re
     await expect(
       page.getByText('This request is resolved and no longer accepts changes.'),
     ).toBeVisible();
-    await page.goto('/');
+    await page.goto('/dashboard');
     await expect(
       page.getByRole('link', { name: `${title} updated`, exact: true }),
     ).toBeVisible();

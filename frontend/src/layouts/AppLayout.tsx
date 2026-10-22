@@ -19,6 +19,7 @@ import {
   LifeBuoy,
   UserRound,
   ShieldCheck,
+  House,
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { Logo } from '../components/ui';
@@ -79,6 +80,10 @@ export function AppLayout() {
         <p className="nav-label">WORKSPACE</p>
         <nav onClick={() => setMobile(false)}>
           <NavLink to="/" end>
+            <House size={19} />
+            Home
+          </NavLink>
+          <NavLink to="/dashboard" end>
             <LayoutDashboard size={19} />
             Overview
           </NavLink>

@@ -4,9 +4,13 @@ import { Link } from 'react-router-dom';
 import { label } from '../utils/format';
 import serviceNovaLogo from '../images/ServiceNova Logo.png';
 
-export function Logo() {
+export function Logo({ to = '/' }: { to?: string }) {
   return (
-    <Link to="/" className="brand" aria-label="ServiceNova home">
+    <Link
+      to={to}
+      className="brand"
+      aria-label={to === '/' ? 'ServiceNova home' : 'ServiceNova dashboard'}
+    >
       <span className="brand-icon">
         <img src={serviceNovaLogo} alt="" aria-hidden="true" />
       </span>

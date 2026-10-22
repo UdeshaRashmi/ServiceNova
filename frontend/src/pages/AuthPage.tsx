@@ -36,7 +36,7 @@ export function AuthPage({ register = false }: { register?: boolean }) {
     setError: fieldError,
     formState: { errors, isSubmitting },
   } = useForm<Values>({ resolver: zodResolver(schema) });
-  if (auth.user) return <Navigate to="/" replace />;
+  if (auth.user) return <Navigate to="/dashboard" replace />;
   async function submit(values: Values) {
     if (register && (!values.name || values.name.length < 2)) {
       fieldError('name', {
@@ -59,7 +59,7 @@ export function AuthPage({ register = false }: { register?: boolean }) {
           from.startsWith('/') &&
           !from.startsWith('//')
           ? from
-          : '/',
+          : '/dashboard',
         { replace: true },
       );
     } catch (e) {

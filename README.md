@@ -13,6 +13,7 @@ A full-stack service request management application for the VisionRoot Software 
 - Role-scoped dashboard metrics and recent requests from real stored data.
 - Administrator user search, details, request counts and display-name updates.
 - Responsive navigation, validation feedback, skeletons, empty/error states, toasts and confirmation dialogs.
+- Public Home page with product introduction, features, Submit/Track/Resolve workflow, About ServiceNova and account entry links.
 - Controlled administrator seeding, migrations, OpenAPI and isolated automated tests.
 
 ## Technology and architecture
@@ -95,7 +96,7 @@ cd frontend
 npm.cmd run dev
 ```
 
-Open http://localhost:5173/register to create a member account, or http://localhost:5173/login to sign in. Use `localhost` consistently in both the UI and API; switching to `127.0.0.1` changes the cookie host. Vite proxies `/api` to http://localhost:3000.
+Open http://localhost:5173 for the public Home page. Use `/register` to create a member account or `/login` to sign in. Successful authentication opens the protected `/dashboard` page (or the protected page you originally requested). The workspace Overview link opens `/dashboard`; the logo and sidebar Home link return to public Home without signing out. Signed-in visitors can return using Home's Open dashboard button. Use `localhost` consistently in both the UI and API; switching to `127.0.0.1` changes the cookie host. Vite proxies `/api` to http://localhost:3000.
 
 - Liveness: http://localhost:3000/api/health
 - Database readiness: http://localhost:3000/api/ready
@@ -217,7 +218,7 @@ npm.cmd exec -- playwright install chromium
 npm.cmd run test:e2e
 ```
 
-Backend tests include 56 API/security tests using repository doubles and 20 tests against freshly migrated temporary SQLite databases. Frontend tests cover 14 validation, access and UI behaviors. Browser tests run a separate temporary database/API (3010) and Vite (5174), exercising real cookie authentication and stored requests. They do not reset or seed the development database. Test-only admin credentials are confined to this isolated environment.
+Backend tests include 56 API/security tests using repository doubles and 20 tests against freshly migrated temporary SQLite databases. Frontend tests cover 16 validation, access and UI behaviors. Five browser workflows cover public Home navigation and the authenticated application, using a separate temporary database/API (3010) and Vite (5174). They do not reset or seed the development database. Test-only admin credentials are confined to this isolated environment.
 
 The [acceptance checklist](docs/acceptance.md) records final executed checks and verification limits. Failed browser traces/screenshots appear in ignored `frontend/test-results/`.
 
@@ -232,7 +233,7 @@ These screenshots were captured from Chromium with real API data in an isolated 
 - [Member dashboard](docs/screenshots/member-dashboard.png)
 - [Mobile request center](docs/screenshots/mobile-requests.png)
 
-Verified in this workspace: both production builds, 76 backend tests, 14 frontend tests, four Chromium full-stack workflows, migration replay/status/schema consistency, compiled API health/readiness, formatting checks, and zero-vulnerability dependency audits. See [acceptance details](docs/acceptance.md) for the precise scope and remaining submission tasks.
+Previously verified: both production builds, 76 backend tests, four Chromium full-stack workflows, migration replay/status/schema consistency, compiled API health/readiness, formatting checks, and zero-vulnerability dependency audits. The public Home change passed the frontend build and all 16 frontend tests. Its updated five-workflow browser suite remains unverified: the sandbox could not start its test server and permission to rerun outside the sandbox was declined. See [acceptance details](docs/acceptance.md) for verification scope and remaining tasks.
 
 ## Assumptions and limitations
 

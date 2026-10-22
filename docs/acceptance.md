@@ -22,7 +22,7 @@
 - [x] Controlled administrator seed is idempotent and refuses member promotion
 - [x] Setup, schema, architecture, API/OpenAPI and limitations documented
 
-## Final integration checks
+## Previous full-stack integration checks (before public Home)
 
 - [x] Frontend production build and 14 frontend tests after integration
 - [x] Browser request creation/edit → admin in-progress/resolved lifecycle
@@ -41,8 +41,17 @@
 
 - [ ] Record a demonstration video and add its actual link
 - [ ] Review the application on the intended presentation device
-- [ ] Commit the database/integration change using the supplied commit message
+- [x] Database/integration change committed (0836479)
+
+## Public Home and dashboard routing
+
+- [x] Public `/` with hero, account links, features, Submit/Track/Resolve workflow, About ServiceNova, and footer
+- [x] Protected dashboard moved to `/dashboard`; login defaults and Overview link updated; logo and sidebar Home link return to public Home without logout
+- [x] Home remains available when the API is unavailable
+- [x] All 16 frontend tests passed and production frontend build passed
+- [ ] Updated five-workflow Chromium suite: sandbox test server failed with `uv_os_get_passwd`; permission to rerun outside the sandbox was declined
+- [ ] Visual desktop/mobile review of the new Home page
 
 No public deployment, Firefox/Safari coverage, load test or complete accessibility audit is claimed. Update this checklist only from executed checks. Browser-test account data is isolated from local development data.
 
-Verification totals: 76 backend tests (including 20 with real SQLite), 14 frontend tests, and 4 browser workflows. One mobile drawer accessibility issue found by browser testing was corrected by hiding the closed offscreen sidebar from visibility/focus.
+Previous full-stack verification totals: 76 backend tests (including 20 with real SQLite), 14 frontend tests, and 4 browser workflows. Current frontend total: 16 passing tests after adding public Home. One mobile drawer accessibility issue found by earlier browser testing was corrected by hiding the closed offscreen sidebar from visibility/focus.

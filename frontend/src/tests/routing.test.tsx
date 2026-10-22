@@ -21,6 +21,31 @@ vi.mock('../services/api', async (importOriginal) => {
   return { ...actual, userApi: { list: vi.fn() } };
 });
 describe('route access', () => {
+  it('keeps the home page public when the API is unavailable', () => {
+    state.user = null;
+    state.error = 'The API is unavailable.';
+    window.history.replaceState({}, '', '/');
+    render(<App />);
+    expect(
+      screen.getByRole('heading', { name: /Every request/ }),
+    ).toBeVisible();
+    expect(
+      screen.getAllByRole('link', { name: /Get started/i })[0],
+    ).toHaveAttribute('href', '/register');
+    expect(window.location.pathname).toBe('/');
+    state.error = '';
+  });
+  it('protects the new dashboard route and preserves the return destination', async () => {
+    state.user = null;
+    state.error = '';
+    window.history.replaceState({}, '', '/dashboard');
+    render(<App />);
+    expect(
+      await screen.findByRole('heading', { name: 'Welcome back.' }),
+    ).toBeVisible();
+    expect(window.location.pathname).toBe('/login');
+    expect(window.history.state.usr.from).toBe('/dashboard');
+  });
   it('redirects anonymous visitors to sign in', async () => {
     state.user = null;
     window.history.replaceState({}, '', '/requests');
@@ -55,6 +80,6 @@ describe('route access', () => {
     ).toBeVisible();
     expect(
       screen.getByRole('link', { name: 'Back to overview' }),
-    ).toHaveAttribute('href', '/');
+    ).toHaveAttribute('href', '/dashboard');
   });
 });
