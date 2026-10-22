@@ -8,7 +8,6 @@ import {
   ClipboardList,
   Layers3,
   ListFilter,
-  LockKeyhole,
   Menu,
   Send,
   ShieldCheck,
@@ -18,6 +17,7 @@ import {
 import { Logo } from '../components/ui';
 import { useAuth } from '../contexts/AuthContext';
 import aboutCollaboration from '../images/about-collaboration.png';
+import heroWorkspace from '../images/hero-workspace.png';
 import './home.css';
 
 const steps = [
@@ -126,7 +126,7 @@ export function Home() {
           <div className="home-container home-hero-grid">
             <div className="home-hero-copy">
               <span className="home-pill">
-                <span /> LESS FRICTION. MORE PROGRESS.
+                <span /> SERVICE REQUESTS, SIMPLIFIED
               </span>
               <h1 id="home-title">
                 Every request.
@@ -161,59 +161,49 @@ export function Home() {
               </div>
             </div>
 
-            <div
-              className="home-journey"
-              aria-label="Illustration of the service request workflow"
-            >
-              <div className="home-journey-top">
-                <span className="home-journey-symbol">
-                  <Layers3 size={22} />
+            <figure className="home-hero-visual">
+              <div className="home-hero-artwork">
+                <img
+                  src={heroWorkspace}
+                  alt="Concept illustration of a service workspace connecting request submission, progress tracking and resolution."
+                  width={1536}
+                  height={1024}
+                  fetchPriority="high"
+                  decoding="async"
+                />
+              </div>
+              <figcaption className="home-hero-workflow">
+                <span>
+                  <span className="home-hero-workflow-icon">
+                    <Send size={17} />
+                  </span>
+                  <span>
+                    <strong>Submit</strong>
+                    <small>Start with the details</small>
+                  </span>
                 </span>
-                <div>
-                  <strong>From request to resolution</strong>
-                  <span>A simpler way to keep work moving</span>
-                </div>
-              </div>
-              <div className="home-journey-steps">
-                <div className="home-journey-step">
-                  <span className="home-step-symbol pending">
-                    <Send size={19} />
+                <ArrowRight size={15} aria-hidden="true" />
+                <span>
+                  <span className="home-hero-workflow-icon">
+                    <ClipboardList size={17} />
                   </span>
-                  <div>
-                    <span className="home-step-caption">A CLEAR START</span>
-                    <h2>Request submitted</h2>
-                    <p>The details, category, and priority are in one place.</p>
-                    <span className="home-stage pending">Pending</span>
-                  </div>
-                </div>
-                <div className="home-journey-step">
-                  <span className="home-step-symbol progress">
-                    <ClipboardList size={19} />
+                  <span>
+                    <strong>Track</strong>
+                    <small>Follow the progress</small>
                   </span>
-                  <div>
-                    <span className="home-step-caption">VISIBLE PROGRESS</span>
-                    <h2>Work moves forward</h2>
-                    <p>An administrator updates the status as work begins.</p>
-                    <span className="home-stage progress">In progress</span>
-                  </div>
-                </div>
-                <div className="home-journey-step">
-                  <span className="home-step-symbol resolved">
-                    <CheckCheck size={19} />
+                </span>
+                <ArrowRight size={15} aria-hidden="true" />
+                <span>
+                  <span className="home-hero-workflow-icon">
+                    <CheckCheck size={17} />
                   </span>
-                  <div>
-                    <span className="home-step-caption">A CLEAR FINISH</span>
-                    <h2>Resolution, recorded</h2>
-                    <p>The completed request stays available to review.</p>
-                    <span className="home-stage resolved">Resolved</span>
-                  </div>
-                </div>
-              </div>
-              <div className="home-journey-footer">
-                <LockKeyhole size={15} />
-                Clear ownership. Controlled access.
-              </div>
-            </div>
+                  <span>
+                    <strong>Resolve</strong>
+                    <small>A clear finish</small>
+                  </span>
+                </span>
+              </figcaption>
+            </figure>
           </div>
         </section>
 
