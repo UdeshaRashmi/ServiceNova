@@ -180,6 +180,20 @@ RESOLVED / CANCELLED -> terminal
 
 DELETE cancels a request and preserves its history. General PATCH never accepts status, owner or timestamps. Profile and roles are read-only in the UI. Status changes and pending edits use atomic database predicates to reject stale/concurrent actions.
 
+## Swagger documentation
+
+Start the frontend and backend, then open **[Swagger UI](http://localhost:5173/api/docs/)**. The raw specification is available at [OpenAPI JSON](http://localhost:5173/api/openapi.json). The same UI is also served at `http://localhost:3000/api/docs/`; for local interactive testing, use the frontend URL so the browser sends the configured trusted Origin.
+
+1. Expand `POST /auth/login`, click **Try it out**, and enter your own account credentials in the JSON body.
+2. If the Origin parameter is shown, enter `http://localhost:5173` (or your configured frontend origin). The browser supplies the actual Origin header; it cannot be spoofed by this field.
+3. Click **Execute**. A successful login sets the HttpOnly session cookie automatically.
+4. Test `GET /auth/me`, request listing, history and other permitted endpoints. Admin endpoints require an admin login.
+5. Use `POST /auth/logout` to invalidate the session when finished.
+
+The **Authorize** dialog is not needed for cookie login. Swagger's Execute buttons call the real API and mutations persist to the selected database. Sessions, role checks, validation and origin protection remain enforced. API rate limits also apply.
+
+The specification in `docs/openapi.json` is the single source. Backend builds copy it to `backend/dist/openapi.json`; deploy that file with the compiled backend. Swagger JavaScript/CSS are served locally, and external spec validation is disabled. For a standalone backend or production reverse proxy, use a docs origin explicitly listed in `FRONTEND_ORIGINS` and route `/api` to the backend.
+
 ## API reference
 
 All resource responses use `{data: ...}`. Lists also include `pagination: {page,limit,totalItems,totalPages}`. Errors use `{error:{code,message,details?}}`.
@@ -219,7 +233,7 @@ npm.cmd exec -- playwright install chromium
 npm.cmd run test:e2e
 ```
 
-Backend tests include 56 API/security tests using repository doubles and 25 tests against freshly migrated temporary SQLite databases. Frontend tests cover 25 validation, access and UI behaviors, including sidebar collapse persistence, role-specific navigation and mobile drawer controls. Five browser workflows cover public Home navigation and the authenticated application, using a separate temporary database/API (3010) and Vite (5174). They do not reset or seed the development database. Test-only admin credentials are confined to this isolated environment.
+Backend tests include 57 API/security and documentation tests using repository doubles and 25 tests against freshly migrated temporary SQLite databases. Frontend tests cover 25 validation, access and UI behaviors, including sidebar collapse persistence, role-specific navigation and mobile drawer controls. Six browser workflows cover public Home navigation and the authenticated application, using a separate temporary database/API (3010) and Vite (5174). They do not reset or seed the development database. Test-only admin credentials are confined to this isolated environment.
 
 The [acceptance checklist](docs/acceptance.md) records final executed checks and verification limits. Failed browser traces/screenshots appear in ignored `frontend/test-results/`.
 

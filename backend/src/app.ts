@@ -11,6 +11,7 @@ import {
 } from './middleware/security.js';
 import { apiRoutes } from './routes/index.js';
 import { AppError, errorHandler } from './utils/errors.js';
+import { swaggerRoutes } from './swagger.js';
 
 export function createApp(repository: Repository, config: Config) {
   const app = express();
@@ -30,6 +31,7 @@ export function createApp(repository: Repository, config: Config) {
     res.json({ data: { status: 'ready' } });
   });
   app.use('/api', limiter(300), requireJson);
+  app.use('/api', swaggerRoutes(config));
   app.use(express.json({ limit: '32kb' }), cookieParser());
   app.use('/api', apiRoutes(repository, config));
   app.use((_req, _res) => {

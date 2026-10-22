@@ -50,3 +50,15 @@ The lifecycle workflow writes `docs/screenshots/member-dashboard.png`; the mobil
 - [ ] Submit the repository and Drive URLs using the assignment instructions
 
 No deployment, physical-device testing, Firefox/Safari coverage, load testing or complete accessibility audit is claimed. Optional features beyond history and the status chart are not required for this checkpoint.
+
+## Swagger UI verification
+
+- [x] `/api/docs/` serves local Swagger UI assets and `/api/openapi.json` serves the shared specification
+- [x] The UI is available through the frontend `/api` proxy for trusted-origin interactive requests
+- [x] Browser Try it out registration established a cookie session and `/auth/me` returned the authenticated account
+- [x] Documentation is readable without a database; API origin/role protections remain enforced
+- [x] Backend production build includes `dist/openapi.json`
+- [x] All 82 backend tests passed (57 API/security/documentation checks and 25 migrated database tests)
+- [x] All six Chromium workflows passed, including the new Swagger workflow
+
+Suggested commit: `feat(api): add interactive Swagger documentation`.

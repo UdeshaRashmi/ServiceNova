@@ -47,6 +47,64 @@ async function create(page: Page, title: string) {
   return new URL(page.url()).pathname;
 }
 
+test('Swagger loads local assets and registers a cookie-authenticated session through Try it out', async ({
+  page,
+}) => {
+  await page.goto('/api/docs/');
+  await expect(
+    page.getByRole('heading', { name: /ServiceNova REST API/ }),
+  ).toBeVisible();
+  const registration = page
+    .locator('.opblock-post')
+    .filter({
+      has: page.locator('.opblock-summary-path', { hasText: '/auth/register' }),
+    });
+  await registration.locator('.opblock-summary').click();
+  await registration
+    .getByRole('button', { name: 'Try it out', exact: true })
+    .click();
+  await registration
+    .locator('input[placeholder="Origin"]')
+    .fill('http://127.0.0.1:5174');
+  await registration
+    .locator('textarea.body-param__text')
+    .fill(
+      JSON.stringify({
+        name: 'Swagger Test Member',
+        email: `swagger-${randomUUID()}@example.com`,
+        password,
+      }),
+    );
+  const registered = page.waitForResponse(
+    (response) =>
+      new URL(response.url()).pathname === '/api/auth/register' &&
+      response.request().method() === 'POST',
+  );
+  await registration
+    .getByRole('button', { name: 'Execute', exact: true })
+    .click();
+  expect((await registered).status()).toBe(201);
+  const currentUser = page
+    .locator('.opblock-get')
+    .filter({
+      has: page.locator('.opblock-summary-path', { hasText: '/auth/me' }),
+    });
+  await currentUser.locator('.opblock-summary').click();
+  await currentUser
+    .getByRole('button', { name: 'Try it out', exact: true })
+    .click();
+  const authenticated = page.waitForResponse(
+    (response) => new URL(response.url()).pathname === '/api/auth/me',
+  );
+  await currentUser
+    .getByRole('button', { name: 'Execute', exact: true })
+    .click();
+  expect((await authenticated).status()).toBe(200);
+  await expect(currentUser.locator('.responses-inner')).toContainText(
+    'Swagger Test Member',
+  );
+});
+
 test('public home presents the product and supports mobile navigation', async ({
   page,
 }) => {

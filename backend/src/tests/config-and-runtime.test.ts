@@ -53,4 +53,30 @@ describe('configuration and staged runtime', () => {
     expect(await verifyPassword(first, hash)).toBe(true);
     expect(await verifyPassword(second, hash)).toBe(false);
   });
+  it('serves Swagger and the shared specification without requiring a database', async () => {
+    const app = createApp(new UnavailableRepository(), readConfig(env));
+    const spec = await request(app).get('/api/openapi.json').expect(200);
+    expect(spec.body.openapi).toBe('3.0.3');
+    expect(spec.body.paths['/requests/{id}/history'].get).toBeDefined();
+    const docs = await request(app).get('/api/docs/').expect(200);
+    expect(docs.text).toContain('ServiceNova API documentation');
+    expect(docs.headers['content-security-policy']).toContain(
+      "script-src 'self'",
+    );
+    expect(docs.headers['content-security-policy']).not.toContain(
+      'upgrade-insecure-requests',
+    );
+    const script = await request(app)
+      .get('/api/docs/swagger-ui-init.js')
+      .expect(200);
+    expect(script.text).toContain('/api/openapi.json');
+    expect(script.text).toContain('"withCredentials": true');
+    await request(app).get('/api/docs/swagger-ui.css').expect(200);
+    await request(app).get('/api/docs/swagger-ui-bundle.js').expect(200);
+    // Documentation must not loosen the API's origin protection.
+    await request(app)
+      .post('/api/auth/login')
+      .send({ email: 'test@example.com', password: 'password' })
+      .expect(403);
+  });
 });

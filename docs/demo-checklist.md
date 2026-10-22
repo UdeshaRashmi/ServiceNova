@@ -24,7 +24,7 @@ Aim for a five-minute recording. Start at the public Home, then demonstrate a re
 9. Create and cancel another pending request; show that cancellation preserves its details/history.
 10. Show admin user search and display-name editing. Public registration cannot create admins or change roles.
 11. Demonstrate mobile navigation and logo/Home navigation, then log out and show protected-route redirection.
-12. Show the API docs, schema and latest tests. Explain React -> Express -> Prisma -> SQLite and transaction-based history recording.
+12. Open Swagger at `http://localhost:5173/api/docs/`, expand an endpoint, demonstrate Try it out with cookie login, then show the schema and latest tests. Explain React -> Express -> Prisma -> SQLite and transaction-based history recording.
 
 Mention that existing requests begin with a tracking baseline: earlier changes were not recorded. Be clear about SQLite's local/single-server scope and any browser checks still pending in [acceptance](acceptance.md).
 

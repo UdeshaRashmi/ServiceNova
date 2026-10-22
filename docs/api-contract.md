@@ -2,6 +2,8 @@
 
 These shapes are implemented by Express and the Prisma/SQLite repository, with API tests against real migrated temporary databases. See [backend setup](../backend/README.md), [database design](database.md) and [OpenAPI](openapi.json).
 
+Interactive [Swagger UI](http://localhost:5173/api/docs/) is served by the backend and accessible through the frontend proxy. Raw schema: `/api/openapi.json`. Both servers must be running for the frontend link. Use `POST /auth/login` in Try it out to establish the cookie session; subsequent requests send it automatically. See [README usage](../README.md#swagger-documentation).
+
 Base URL: `/api`. Requests use JSON and cookie credentials. Successful login and registration must establish the cookie session and return the authenticated user. Public registration must create only `USER` accounts.
 
 All mutations require a trusted `Origin` header. This includes login, registration, logout and non-browser API clients. Logout invalidates all existing sessions for the current user before clearing the cookie. `GET /api/health` reports process liveness; `GET /api/ready` reports database readiness.

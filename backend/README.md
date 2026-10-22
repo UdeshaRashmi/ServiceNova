@@ -53,6 +53,16 @@ Prisma queries scope ownership before filtering/counting. List rows/counts and m
 
 See [API contract](../docs/api-contract.md), [OpenAPI document](../docs/openapi.json) and [acceptance checklist](../docs/acceptance.md).
 
-`npm.cmd test` runs 56 database-independent API/security tests and 20 real-database integration tests. Real-database tests create a unique temporary SQLite file, deploy the checked-in migration, and clean up only their own directory. The browser-test server under src/tests/support also uses a separate temporary database and is excluded from production builds.
+`npm.cmd test` runs 57 database-independent API/security/documentation tests and 25 real-database integration tests. Real-database tests create a unique temporary SQLite file, deploy the checked-in migration, and clean up only their own directory. The browser-test server under src/tests/support also uses a separate temporary database and is excluded from production builds.
 
 /api/health reports liveness; /api/ready verifies the database tables and returns 503 when unavailable. The production server uses PrismaRepository. UnavailableRepository is retained only for failure-path tests; MemoryRepository exists only under tests.
+
+## Swagger UI
+
+- Interactive local documentation: `http://localhost:5173/api/docs/` with both servers running.
+- Backend documentation: `http://localhost:3000/api/docs/`.
+- Raw OpenAPI specification: `http://localhost:3000/api/openapi.json`.
+
+For Try it out, open docs through the frontend proxy so mutations send the trusted frontend Origin. Execute `POST /auth/login` with your own credentials; the browser retains the HttpOnly cookie and authenticated calls use it automatically. Do not paste a JWT into Authorize. Origin inputs cannot override the browser's actual Origin. Access and business rules apply to all requests; Execute can change real database data.
+
+Source: `docs/openapi.json`. `npm.cmd run build` copies this file beside compiled server code in `dist/`; include it when deploying. The docs and static assets work without database readiness, while resource endpoints still require a functioning database. Runtime JavaScript/CSS are served locally. See [Swagger configuration](https://swagger.io/docs/open-source-tools/swagger-ui/usage/configuration/) for the cookie and external-validator settings.
