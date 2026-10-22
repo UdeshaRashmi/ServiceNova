@@ -13,7 +13,7 @@ A full-stack service request management application for the VisionRoot Software 
 - Role-scoped dashboard metrics and recent requests from real stored data.
 - Administrator user search, details, request counts and display-name updates.
 - Responsive navigation, validation feedback, skeletons, empty/error states, toasts and confirmation dialogs.
-- Floating navy/teal sidebar with remembered desktop collapse mode, role-specific links, account controls and a mobile drawer with Escape/focus handling.
+- Minimal light sidebar with remembered desktop collapse mode, role-specific links, account controls and a mobile drawer with Escape/focus handling.
 - Public Home page with product introduction, features, Submit/Track/Resolve workflow, About ServiceNova and account entry links.
 - Controlled administrator seeding, migrations, OpenAPI and isolated automated tests.
 

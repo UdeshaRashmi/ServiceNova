@@ -181,7 +181,6 @@ export function AppLayout() {
               {admin ? 'Administrator access' : 'Personal service desk'}
             </span>
           </div>
-          <span className="sidebar-role-dot" aria-hidden="true" />
         </div>
         <NavLink
           className="sidebar-create"
@@ -199,12 +198,9 @@ export function AppLayout() {
         >
           {admin ? <ClipboardList size={19} /> : <Plus size={20} />}
           <span>{admin ? 'Manage requests' : 'Create request'}</span>
-          <ArrowUpRight size={16} className="sidebar-create-arrow" />
         </NavLink>
         <div className="sidebar-navigation">
-          <p className="nav-label">
-            WORKSPACE <span>01</span>
-          </p>
+          <p className="nav-label">WORKSPACE</p>
           <nav
             aria-label="Workspace navigation"
             onClick={() => setMobile(false)}
@@ -217,9 +213,7 @@ export function AppLayout() {
               title={collapsed ? 'Overview' : undefined}
             >
               <LayoutDashboard size={19} />
-              <span className="sidebar-link-copy">
-                Overview<small>Your workspace at a glance</small>
-              </span>
+              <span className="sidebar-link-copy">Overview</span>
               <span className="sidebar-active-marker" aria-hidden="true" />
             </NavLink>
             <NavLink
@@ -236,11 +230,6 @@ export function AppLayout() {
               <ClipboardList size={19} />
               <span className="sidebar-link-copy">
                 {admin ? 'All requests' : 'My requests'}
-                <small>
-                  {admin
-                    ? 'Review, prioritize, resolve'
-                    : 'Follow every update'}
-                </small>
               </span>
               <span className="sidebar-active-marker" aria-hidden="true" />
             </NavLink>
@@ -252,16 +241,12 @@ export function AppLayout() {
                 title={collapsed ? 'User management' : undefined}
               >
                 <Users size={19} />
-                <span className="sidebar-link-copy">
-                  User management<small>The people behind the work</small>
-                </span>
+                <span className="sidebar-link-copy">User management</span>
                 <span className="sidebar-active-marker" aria-hidden="true" />
               </NavLink>
             )}
           </nav>
-          <p className="nav-label sidebar-personal-label">
-            PERSONAL <span>02</span>
-          </p>
+          <p className="nav-label sidebar-personal-label">PERSONAL</p>
           <nav
             aria-label="Personal navigation"
             onClick={() => setMobile(false)}
@@ -273,9 +258,7 @@ export function AppLayout() {
               title={collapsed ? 'My profile' : undefined}
             >
               <UserRound size={19} />
-              <span className="sidebar-link-copy">
-                My profile<small>Your account details</small>
-              </span>
+              <span className="sidebar-link-copy">My profile</span>
               <span className="sidebar-active-marker" aria-hidden="true" />
             </NavLink>
             <NavLink
@@ -286,30 +269,12 @@ export function AppLayout() {
               title={collapsed ? 'Back to home' : undefined}
             >
               <House size={19} />
-              <span className="sidebar-link-copy">
-                Home<small>Back to ServiceNova</small>
-              </span>
+              <span className="sidebar-link-copy">Home</span>
               <ArrowUpRight className="sidebar-home-arrow" size={16} />
             </NavLink>
           </nav>
         </div>
         <div className="sidebar-bottom">
-          <div className="sidebar-note">
-            <span className="sidebar-note-tag">
-              <span />
-              THE SERVICENOVA WAY
-            </span>
-            <h3>
-              {admin
-                ? 'A clear queue. A focused team.'
-                : 'Good details. Better solutions.'}
-            </h3>
-            <p>
-              {admin
-                ? 'Keep incoming work organized and move each request forward.'
-                : 'A clear title and description help your team get started.'}
-            </p>
-          </div>
           <div className="sidebar-account">
             <Link
               className="sidebar-account-link"

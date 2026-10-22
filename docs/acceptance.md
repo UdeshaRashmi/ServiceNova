@@ -54,7 +54,7 @@
 
 ## Sidebar redesign
 
-- [x] Floating sidebar with icon-only desktop collapse mode and persisted layout preference
+- [x] Minimal light sidebar with icon-only desktop collapse mode and persisted layout preference
 - [x] Member/admin navigation, account controls and Home access
 - [x] Mobile drawer Escape handling, background lock and focus restoration
 - [x] All 21 frontend tests, production build and formatting check passed
