@@ -51,6 +51,7 @@ docs/
   openapi.json          OpenAPI 3.0 endpoint documentation
   database.md           Schema, indexes, transactions and portability
   acceptance.md         Executed checks and submission tasks
+  accessibility.md      Review scope, fixes, report commands and limits
   demo-checklist.md     Suggested interview/demo walkthrough
   screenshots/          Verified desktop/mobile captures
 ```
@@ -259,9 +260,10 @@ npm.cmd test
 npm.cmd run format:check
 npm.cmd exec -- playwright install chromium
 npm.cmd run test:e2e
+npm.cmd exec -- playwright show-report
 ```
 
-Backend tests include 57 API/security and documentation tests using repository doubles and 25 tests against freshly migrated temporary SQLite databases. Frontend tests cover 25 validation, access and UI behaviors, including sidebar collapse persistence, role-specific navigation and mobile drawer controls. Six browser workflows cover public Home navigation and the authenticated application, using a separate temporary database/API (3010) and Vite (5174). They do not reset or seed the development database. Test-only admin credentials are confined to this isolated environment.
+Backend tests include 30 isolated request-service unit tests, 57 API/security/documentation checks using repository doubles and 25 tests against freshly migrated temporary SQLite databases (112 total). Frontend tests cover 25 validation, access and UI behaviors, including sidebar collapse persistence, role-specific navigation and mobile drawer controls. Twelve browser workflows cover public Home navigation and the authenticated application, using a separate temporary database/API (3010) and Vite (5174). They do not reset or seed the development database. Test-only admin credentials are confined to this isolated environment.
 
 The [acceptance checklist](docs/acceptance.md) records final executed checks and verification limits. Failed browser traces/screenshots appear in ignored `frontend/test-results/`.
 
@@ -276,9 +278,9 @@ These screenshots were regenerated and visually inspected on 22 October 2026 usi
 - [Member dashboard](docs/screenshots/member-dashboard.png)
 - [Mobile request center](docs/screenshots/mobile-requests.png)
 
-Latest executed checks: backend and frontend production builds passed, along with **82 backend tests**, **25 frontend tests** and **6 Chromium workflows**. Browser coverage includes Swagger Try it out with cookie authentication, public Home/mobile navigation, the member/admin request lifecycle with history/chart assertions, cancellation/profile/logout, admin user management and mobile navigation without horizontal overflow. The compiled backend also served the packaged Swagger UI and OpenAPI document successfully.
+Latest executed checks: backend and frontend production builds passed, along with **112 backend tests**, **25 frontend tests** and **12 Chromium workflows**. Browser coverage includes six full-stack workflows and six desktop/mobile accessibility scenarios. The accessibility checks cover public pages, member/admin screens, forms/errors, history, dialogs, keyboard focus and page overflow at 1280px and 320px. Swagger Try it out and cookie authentication remain covered. The compiled backend also served the packaged Swagger UI and OpenAPI document successfully.
 
-Desktop and mobile dashboard captures were visually inspected after the dashboard redesign. Physical-device review and a full visual/accessibility review of all Home/history states remain pending. See [acceptance details](docs/acceptance.md) for verification scope and submission tasks.
+Desktop and mobile dashboard captures were visually inspected after the dashboard redesign. Automated accessibility and keyboard checks are documented in [accessibility review](docs/accessibility.md). Physical-device, assistive-technology and full WCAG reviews remain pending. See [acceptance details](docs/acceptance.md) for verification scope and submission tasks.
 
 ## Troubleshooting
 

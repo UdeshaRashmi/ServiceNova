@@ -1,5 +1,63 @@
 import { randomUUID } from 'node:crypto';
 import { test, expect, type Page } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
+
+async function checkAccessibility(page: Page, state: string) {
+  await expect(
+    page.getByRole('status', { name: 'Loading', exact: true }),
+  ).toHaveCount(0);
+  await page.evaluate(() => document.fonts.ready);
+  // Measure settled notification colors, rather than a fade-in intermediate.
+  await page.locator('[data-sonner-toast]').evaluateAll((elements) =>
+    Promise.all(
+      elements
+        .flatMap((element) => element.getAnimations({ subtree: true }))
+        .filter(
+          (animation) =>
+            animation.effect?.getComputedTiming().iterations !== Infinity,
+        )
+        .map((animation) => animation.finished.catch(() => undefined)),
+    ),
+  );
+  const results = await new AxeBuilder({ page })
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+    .analyze();
+  await test.info().attach(`${state}-accessibility.json`, {
+    body: JSON.stringify(
+      { violations: results.violations, incomplete: results.incomplete },
+      null,
+      2,
+    ),
+    contentType: 'application/json',
+  });
+  const overflowing = await page.evaluate(() =>
+    Array.from(document.querySelectorAll('body *'))
+      .filter((node) => node.getBoundingClientRect().right > innerWidth + 1)
+      .slice(0, 12)
+      .map((node) => ({
+        tag: node.tagName,
+        className: node.className,
+        right: node.getBoundingClientRect().right,
+      })),
+  );
+  expect(
+    results.violations.map((issue) => ({
+      id: issue.id,
+      impact: issue.impact,
+      nodes: issue.nodes.map((node) => ({
+        target: node.target,
+        summary: node.failureSummary,
+      })),
+    })),
+    `${state}: accessibility violations`,
+  ).toEqual([]);
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= window.innerWidth,
+    ),
+    `${state}: page overflow ${JSON.stringify(overflowing)}`,
+  ).toBe(true);
+}
 
 const password = 'browser-test-member-password';
 async function register(page: Page) {
@@ -54,11 +112,9 @@ test('Swagger loads local assets and registers a cookie-authenticated session th
   await expect(
     page.getByRole('heading', { name: /ServiceNova REST API/ }),
   ).toBeVisible();
-  const registration = page
-    .locator('.opblock-post')
-    .filter({
-      has: page.locator('.opblock-summary-path', { hasText: '/auth/register' }),
-    });
+  const registration = page.locator('.opblock-post').filter({
+    has: page.locator('.opblock-summary-path', { hasText: '/auth/register' }),
+  });
   await registration.locator('.opblock-summary').click();
   await registration
     .getByRole('button', { name: 'Try it out', exact: true })
@@ -66,15 +122,13 @@ test('Swagger loads local assets and registers a cookie-authenticated session th
   await registration
     .locator('input[placeholder="Origin"]')
     .fill('http://127.0.0.1:5174');
-  await registration
-    .locator('textarea.body-param__text')
-    .fill(
-      JSON.stringify({
-        name: 'Swagger Test Member',
-        email: `swagger-${randomUUID()}@example.com`,
-        password,
-      }),
-    );
+  await registration.locator('textarea.body-param__text').fill(
+    JSON.stringify({
+      name: 'Swagger Test Member',
+      email: `swagger-${randomUUID()}@example.com`,
+      password,
+    }),
+  );
   const registered = page.waitForResponse(
     (response) =>
       new URL(response.url()).pathname === '/api/auth/register' &&
@@ -84,11 +138,9 @@ test('Swagger loads local assets and registers a cookie-authenticated session th
     .getByRole('button', { name: 'Execute', exact: true })
     .click();
   expect((await registered).status()).toBe(201);
-  const currentUser = page
-    .locator('.opblock-get')
-    .filter({
-      has: page.locator('.opblock-summary-path', { hasText: '/auth/me' }),
-    });
+  const currentUser = page.locator('.opblock-get').filter({
+    has: page.locator('.opblock-summary-path', { hasText: '/auth/me' }),
+  });
   await currentUser.locator('.opblock-summary').click();
   await currentUser
     .getByRole('button', { name: 'Try it out', exact: true })
@@ -215,8 +267,7 @@ test('member creates and edits; admin progresses and resolves the same stored re
     ).toBeVisible();
     await expect(
       page.getByRole('link', {
-        name: 'Resolved: 1 of 1 requests',
-        exact: true,
+        name: /Resolved.*1.*100%/,
       }),
     ).toBeVisible();
     await page.evaluate(() => document.fonts.ready);
@@ -343,3 +394,172 @@ test('mobile navigation stays usable without page overflow', async ({
     fullPage: true,
   });
 });
+
+for (const viewport of [
+  { width: 1280, height: 900 },
+  { width: 320, height: 844 },
+]) {
+  test(`public accessibility and responsive review at ${viewport.width}px`, async ({
+    page,
+  }) => {
+    test.setTimeout(90000);
+    await page.setViewportSize(viewport);
+    for (const route of ['/', '/login', '/register']) {
+      await page.goto(route);
+      await expect(
+        page.getByRole('heading', { level: 1 }).first(),
+      ).toBeVisible();
+      await checkAccessibility(
+        page,
+        `public-${route.replaceAll('/', '') || 'home'}-${viewport.width}`,
+      );
+      if (route === '/' && viewport.width < 768) {
+        const toggle = page.locator('.home-menu-toggle');
+        await toggle.focus();
+        await page.keyboard.press('Enter');
+        await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+        await checkAccessibility(page, 'public-mobile-navigation');
+        await page.keyboard.press('Escape');
+        await expect(toggle).toBeFocused();
+        await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+      }
+    }
+    await page
+      .getByRole('button', { name: 'Create account', exact: true })
+      .click();
+    await expect(page.getByLabel('Email address')).toHaveAttribute(
+      'aria-invalid',
+      'true',
+    );
+    await checkAccessibility(page, `registration-errors-${viewport.width}`);
+  });
+
+  test(`member forms, history, dialogs and keyboard access at ${viewport.width}px`, async ({
+    page,
+  }) => {
+    test.setTimeout(90000);
+    await page.setViewportSize(viewport);
+    await register(page);
+    await checkAccessibility(page, `member-dashboard-${viewport.width}`);
+    const accountToggle = page.locator('.account-btn');
+    await accountToggle.focus();
+    await page.keyboard.press('Enter');
+    await expect(page.locator('.account-menu')).toBeVisible();
+    await checkAccessibility(page, `account-menu-${viewport.width}`);
+    await page.keyboard.press('Escape');
+    await expect(page.locator('.account-menu')).not.toBeVisible();
+    await expect(accountToggle).toBeFocused();
+    if (viewport.width < 768) {
+      const trigger = page.getByRole('button', {
+        name: 'Open navigation',
+        exact: true,
+      });
+      await trigger.focus();
+      await page.keyboard.press('Enter');
+      const drawer = page.getByRole('dialog', { name: 'Workspace sidebar' });
+      await expect(drawer).toBeVisible();
+      await checkAccessibility(page, `mobile-sidebar-${viewport.width}`);
+      for (let n = 0; n < 12; n++) {
+        await page.keyboard.press('Tab');
+        expect(
+          await drawer.evaluate((node) =>
+            node.contains(document.activeElement),
+          ),
+        ).toBe(true);
+      }
+      await page.keyboard.press('Escape');
+      await expect(trigger).toBeFocused();
+    } else {
+      await page.keyboard.press('Tab');
+      const skip = page.getByRole('link', {
+        name: 'Skip to content',
+        exact: true,
+      });
+      await skip.focus();
+      await page.keyboard.press('Enter');
+      await expect(page.locator('#main-content')).toBeFocused();
+    }
+    await page.goto('/requests/new');
+    await checkAccessibility(page, `request-form-${viewport.width}`);
+    await page
+      .getByRole('button', { name: 'Submit request', exact: true })
+      .click();
+    const titleField = page.getByLabel(/Request title/);
+    await expect(titleField).toHaveAttribute('aria-invalid', 'true');
+    await expect(titleField).toHaveAccessibleDescription(
+      'Use at least 5 characters.',
+    );
+    await checkAccessibility(page, `request-errors-${viewport.width}`);
+    await page.screenshot({
+      path: `test-results/request-form-${viewport.width}.png`,
+      fullPage: true,
+    });
+    const path = await create(
+      page,
+      'Intermittent network connection when opening the billing and account pages',
+    );
+    await expect(
+      page.getByRole('heading', { name: 'Request submitted', exact: true }),
+    ).toBeVisible();
+    await checkAccessibility(page, `request-history-${viewport.width}`);
+    await page
+      .getByRole('button', { name: 'Cancel request', exact: true })
+      .click();
+    const dialog = page.getByRole('dialog', { name: 'Cancel this request?' });
+    await expect(dialog).toBeVisible();
+    await checkAccessibility(page, `confirmation-dialog-${viewport.width}`);
+    for (let n = 0; n < 6; n++) {
+      await page.keyboard.press('Tab');
+      expect(
+        await dialog.evaluate((node) => node.contains(document.activeElement)),
+      ).toBe(true);
+    }
+    await page.keyboard.press('Escape');
+    await expect(dialog).not.toBeVisible();
+    await expect(
+      page.getByRole('button', { name: 'Cancel request', exact: true }),
+    ).toBeFocused();
+    await page.goto('/requests');
+    await expect(
+      page.getByRole('link', { name: /^Intermittent network connection/ }),
+    ).toBeVisible();
+    await checkAccessibility(page, `member-list-${viewport.width}`);
+    const table = page.getByRole('region', { name: 'Requests table' });
+    await table.focus();
+    await expect(table).toBeFocused();
+    await page.goto('/profile');
+    await checkAccessibility(page, `member-profile-${viewport.width}`);
+    await page.goto(path);
+    await expect(
+      page.getByRole('heading', { name: 'Request history', exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: 'Request submitted', exact: true }),
+    ).toBeVisible();
+    await page.screenshot({
+      path: `test-results/request-history-${viewport.width}.png`,
+      fullPage: true,
+    });
+  });
+
+  test(`admin screens accessibility at ${viewport.width}px`, async ({
+    page,
+  }) => {
+    test.setTimeout(90000);
+    await page.setViewportSize(viewport);
+    await loginAdmin(page);
+    await checkAccessibility(page, `admin-dashboard-${viewport.width}`);
+    await page.goto('/requests');
+    await checkAccessibility(page, `admin-requests-${viewport.width}`);
+    await page.goto('/users');
+    await expect(
+      page.getByRole('link', { name: 'Browser Test Admin', exact: true }),
+    ).toBeVisible();
+    await checkAccessibility(page, `admin-users-${viewport.width}`);
+    await page
+      .getByRole('link', { name: 'Browser Test Admin', exact: true })
+      .click();
+    await expect(page.getByLabel('Display name')).toBeVisible();
+    await checkAccessibility(page, `admin-user-detail-${viewport.width}`);
+  });
+}

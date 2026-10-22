@@ -1,64 +1,69 @@
 # Verification and submission checklist
 
-This file records executed checks separately from checks still pending. The latest implementation includes the public Home, responsive sidebar, request history and dashboard status chart.
+Last review: 22 October 2026. This file reports the current verified state; previous test totals are superseded.
 
-## Verified implementation
+## Verification totals
 
-- [x] React/TypeScript frontend and Express/TypeScript backend production builds
-- [x] 81 backend tests: 56 API/security tests and 25 migrated SQLite integration tests
-- [x] 25 frontend tests covering validation, access, navigation, chart counts and history states
+| Check              | Result               | Scope                                                                                                      |
+| ------------------ | -------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Backend tests      | 112 passed           | 30 isolated service unit tests, 57 API/security/documentation checks, 25 migrated SQLite integration tests |
+| Frontend tests     | 25 passed            | Validation, route access, navigation, chart counts and history states                                      |
+| Chromium workflows | 12 passed            | Six full-stack workflows and six accessibility/keyboard scenarios; all passed in one final run             |
+| Production builds  | Backend and frontend | TypeScript compilation, Vite output and packaged OpenAPI                                                   |
+
+## Implemented behavior
+
 - [x] Registration, login, HttpOnly cookie sessions and logout session invalidation
 - [x] Member ownership checks and admin-only request/user management
 - [x] Pending-only member edits/cancellation and backend-enforced status transitions
+- [x] Unit coverage of all 16 status pairs, role restrictions, ownership, scoped reads and conditional-write conflicts
 - [x] Search, status/category/priority filters, sorting and pagination
-- [x] Role-scoped dashboard totals and clickable status chart, including cancellations
-- [x] Persistent activity with actor, time, edited field names and status transitions
-- [x] Activity/request writes share a transaction; rollback is integration-tested
-- [x] Existing requests receive a tracking baseline without invented earlier events
-- [x] SQLite constraints, indexes, conditional updates and safe user projections
-- [x] Additive migrations applied after a local backup; development schema up to date
-- [x] API health and database readiness returned success after restarting the backend
-- [x] README, API reference, OpenAPI and database documentation
+- [x] Role-scoped dashboard totals and clickable status chart including cancellations
+- [x] Persistent creation/edit/status activity with actor, timestamp and pagination
+- [x] Request mutation and activity writes share a transaction; rollback is integration-tested
+- [x] Existing requests receive a tracking baseline without invented earlier changes
+- [x] SQLite constraints, indexes, conditional writes and safe projections
+- [x] Swagger UI at `/api/docs/` and the shared OpenAPI document at `/api/openapi.json`
+- [x] Browser Swagger Try it out establishes a cookie session; API origin and role protections remain enforced
+- [x] README, schema, API/OpenAPI, demo and accessibility documentation
 
-## Browser verification and screenshots
+## Accessibility and responsive review
 
-On 22 October 2026, all five current Chromium workflows passed in one run (26 seconds). The test server encountered `uv_os_get_passwd` / `ENOMEM` in the sandbox; the subsequent approved run outside the sandbox completed successfully. Tests covered public Home/mobile navigation, the member/admin lifecycle with history and chart assertions, cancellation/profile/logout, admin user management, and mobile request navigation without horizontal overflow.
+See [accessibility review](accessibility.md) for scanned states, commands, fixes, evidence and limits.
 
-- [x] Execute all five current Chromium workflows
-- [x] Capture and inspect updated desktop/mobile screenshots
-- [ ] Review the new Home, sidebar, status chart and request history in a browser
-- [ ] Review on the intended presentation device
+- [x] Larger text across forms, lists, badges, navigation, profiles and history
+- [x] Contrast fixes for secondary text, badges and notifications
+- [x] Field errors associated with inputs; named/described confirmation dialogs
+- [x] Keyboard-focusable table scrolling; narrow profiles and wrapping pagination/actions
+- [x] Mobile drawer Tab containment, Escape and focus return
+- [x] Account/Home menu Escape handling and dialog focus containment/return
+- [x] Focusable skip-to-content destinations and reduced-motion support
+- [ ] Physical-device and assistive-technology review; browser zoom/text scaling
+- [ ] Complete WCAG assessment and Firefox/Safari coverage
 
-The [member dashboard](screenshots/member-dashboard.png) and [mobile requests](screenshots/mobile-requests.png) images were regenerated from the successful run and visually inspected. The dashboard shows the current sidebar and status chart using an isolated stored request; the mobile capture shows the request listing empty state at 390 x 844. A full visual review of the remaining Home/history states is still pending.
+The test suite scans public, member and administrator pages at 1280 x 900 and 320 x 844 using axe WCAG A/AA tags through 2.2. It also checks page overflow and keyboard interactions. Automated passes do not establish full WCAG conformance; incomplete axe checks require human judgment.
 
-To regenerate both images, from `frontend/`:
+## Browser evidence
+
+The six full-stack workflows cover Swagger, Home/mobile navigation, member/admin request progression with history/chart checks, cancellation/profile/logout, admin display-name management and mobile request navigation. Six additional desktop/mobile scenarios cover accessibility and keyboard behavior.
+
+The [member dashboard](screenshots/member-dashboard.png), [mobile requests](screenshots/mobile-requests.png), [320px form validation](screenshots/request-form-mobile.png) and [320px history/detail](screenshots/request-history-mobile.png) were captured from isolated test accounts and visually inspected. Test-only data never uses or resets the development database.
+
+From `frontend/`:
 
 ```powershell
-npm.cmd exec -- playwright install chromium
 npm.cmd run test:e2e
+npm.cmd exec -- playwright show-report
 ```
 
-The lifecycle workflow writes `docs/screenshots/member-dashboard.png`; the mobile workflow writes `docs/screenshots/mobile-requests.png`. Tests use a separate temporary migrated database/API on port 3010 and Vite on port 5174. Do not start another process on those ports. Development accounts and data are not used.
+Reports and attached axe results are in ignored `frontend/playwright-report/`; diagnostic screenshots/traces are in `frontend/test-results/`. Ports 3010 and 5174 must be free. The restricted execution sandbox may require approval to launch the browser/test servers.
 
 ## Submission tasks
 
-- [ ] Confirm the repository name is `visionroot-software-engineering-assignment`
-- [ ] Confirm the repository URL is publicly accessible to evaluators
-- [ ] Record a demo video and add its actual Drive link to README
-- [ ] Include source, README, .env.example, migrations/schema, API docs and automated tests
-- [ ] Check that credentials, .env, local databases, dependencies and generated output are excluded from Git
-- [ ] Submit the repository and Drive URLs using the assignment instructions
+- [ ] Confirm repository name `visionroot-software-engineering-assignment` and public evaluator access
+- [ ] Record a demo video, add its real Drive URL to README and verify sharing
+- [ ] Review the application on the intended presentation device
+- [ ] Confirm .env, credentials, databases, dependencies and generated output are excluded from Git
+- [ ] Submit source, README, .env.example, migrations/schema, API documentation, tests and required URLs
 
-No deployment, physical-device testing, Firefox/Safari coverage, load testing or complete accessibility audit is claimed. Optional features beyond history and the status chart are not required for this checkpoint.
-
-## Swagger UI verification
-
-- [x] `/api/docs/` serves local Swagger UI assets and `/api/openapi.json` serves the shared specification
-- [x] The UI is available through the frontend `/api` proxy for trusted-origin interactive requests
-- [x] Browser Try it out registration established a cookie session and `/auth/me` returned the authenticated account
-- [x] Documentation is readable without a database; API origin/role protections remain enforced
-- [x] Backend production build includes `dist/openapi.json`
-- [x] All 82 backend tests passed (57 API/security/documentation checks and 25 migrated database tests)
-- [x] All six Chromium workflows passed, including the new Swagger workflow
-
-Suggested commit: `feat(api): add interactive Swagger documentation`.
+No public deployment, physical-device coverage, screen-reader certification, load testing or complete accessibility audit is claimed.

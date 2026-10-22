@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ArrowRight,
@@ -73,6 +73,18 @@ const features = [
 export function Home() {
   const { user } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuTrigger = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (!menuOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setMenuOpen(false);
+        menuTrigger.current?.focus();
+      }
+    };
+    document.addEventListener('keydown', closeOnEscape);
+    return () => document.removeEventListener('keydown', closeOnEscape);
+  }, [menuOpen]);
   const destination = user ? '/dashboard' : '/register';
   const actionLabel = user ? 'Open dashboard' : 'Get started';
   return (
@@ -107,6 +119,7 @@ export function Home() {
             </Link>
             <button
               className="home-menu-toggle"
+              ref={menuTrigger}
               type="button"
               aria-label={
                 menuOpen ? 'Close main navigation' : 'Open main navigation'
@@ -121,7 +134,7 @@ export function Home() {
         </div>
       </header>
 
-      <main id="main-content">
+      <main id="main-content" tabIndex={-1}>
         <section className="home-hero" aria-labelledby="home-title">
           <div className="home-container home-hero-grid">
             <div className="home-hero-copy">

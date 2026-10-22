@@ -125,7 +125,7 @@ export function AuthPage({ register = false }: { register?: boolean }) {
         </div>
         <p className="story-footer">SIMPLIFY REQUESTS. ACCELERATE SOLUTIONS.</p>
       </aside>
-      <main className="auth-main">
+      <main id="main-content" className="auth-main" tabIndex={-1}>
         <div className="auth-mobile-brand">
           <Logo />
         </div>
@@ -146,9 +146,12 @@ export function AuthPage({ register = false }: { register?: boolean }) {
                   placeholder="e.g. Alex Morgan"
                   {...field('name')}
                   aria-invalid={!!errors.name}
+                  aria-describedby={errors.name ? 'auth-name-error' : undefined}
                 />
                 {errors.name && (
-                  <span className="field-error">{errors.name.message}</span>
+                  <span id="auth-name-error" className="field-error">
+                    {errors.name.message}
+                  </span>
                 )}
               </label>
             )}
@@ -160,9 +163,12 @@ export function AuthPage({ register = false }: { register?: boolean }) {
                 placeholder="you@company.com"
                 {...field('email')}
                 aria-invalid={!!errors.email}
+                aria-describedby={errors.email ? 'auth-email-error' : undefined}
               />
               {errors.email && (
-                <span className="field-error">{errors.email.message}</span>
+                <span id="auth-email-error" className="field-error">
+                  {errors.email.message}
+                </span>
               )}
             </label>
             <label>
@@ -170,7 +176,14 @@ export function AuthPage({ register = false }: { register?: boolean }) {
               <div className="password-input">
                 <input
                   aria-label="Password"
-                  aria-describedby={register ? 'password-help' : undefined}
+                  aria-describedby={
+                    [
+                      errors.password ? 'auth-password-error' : '',
+                      register ? 'password-help' : '',
+                    ]
+                      .filter(Boolean)
+                      .join(' ') || undefined
+                  }
                   type={show ? 'text' : 'password'}
                   autoComplete={register ? 'new-password' : 'current-password'}
                   placeholder={
@@ -190,7 +203,9 @@ export function AuthPage({ register = false }: { register?: boolean }) {
                 </button>
               </div>
               {errors.password && (
-                <span className="field-error">{errors.password.message}</span>
+                <span id="auth-password-error" className="field-error">
+                  {errors.password.message}
+                </span>
               )}
               {register && (
                 <small id="password-help" className="field-help">

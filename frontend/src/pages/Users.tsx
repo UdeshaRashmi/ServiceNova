@@ -58,7 +58,12 @@ export function Users() {
           data && (
             <>
               {data.data.length ? (
-                <div className="table-scroll">
+                <div
+                  className="table-scroll"
+                  role="region"
+                  aria-label="Members table"
+                  tabIndex={0}
+                >
                   <table>
                     <thead>
                       <tr>
@@ -165,9 +170,15 @@ function NameForm({
     <form className="request-form" onSubmit={handleSubmit(submit)} noValidate>
       <label>
         Display name
-        <input {...register('name')} aria-invalid={!!errors.name} />
+        <input
+          {...register('name')}
+          aria-invalid={!!errors.name}
+          aria-describedby={errors.name ? 'display-name-error' : undefined}
+        />
         {errors.name && (
-          <span className="field-error">{errors.name.message}</span>
+          <span id="display-name-error" className="field-error">
+            {errors.name.message}
+          </span>
         )}
       </label>
       <p className="field-help">

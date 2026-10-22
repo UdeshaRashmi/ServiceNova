@@ -40,7 +40,7 @@ export function StatusChart({ metrics }: { metrics: Metrics }) {
             <li key={status}>
               <Link
                 to={`/requests?status=${status}`}
-                aria-label={`${label(status)}: ${count} of ${metrics.total} requests`}
+                aria-describedby={`status-${status}-count`}
               >
                 <span className="bar-caption">
                   <span>{label(status)}</span>
@@ -58,6 +58,9 @@ export function StatusChart({ metrics }: { metrics: Metrics }) {
                   />
                 </span>
               </Link>
+              <span className="sr-only" id={`status-${status}-count`}>
+                {count} of {metrics.total} requests
+              </span>
             </li>
           ))}
         </ul>

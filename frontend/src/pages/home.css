@@ -107,7 +107,7 @@
   font-size: 15px;
   line-height: 1.9;
   max-width: 440px;
-  color: #64748b;
+  color: #58697c;
 }
 .home-hero-actions {
   display: flex;
@@ -210,7 +210,7 @@
 }
 .home-hero-workflow small {
   display: block;
-  color: #64748b;
+  color: #58697c;
   font-size: 10px;
   margin-top: 3px;
   white-space: nowrap;
@@ -298,7 +298,7 @@
   font-weight: 600;
 }
 .home-process-top > svg {
-  color: #64748b;
+  color: #58697c;
 }
 .home-process-step h3 {
   font-size: 21px;
@@ -410,7 +410,7 @@
   justify-content: space-between;
   gap: 20px;
   font-size: 11px;
-  color: #64748b;
+  color: #58697c;
   padding-block: 22px;
   border-top: 1px solid #e8edf3;
 }

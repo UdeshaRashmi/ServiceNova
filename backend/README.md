@@ -53,7 +53,7 @@ Prisma queries scope ownership before filtering/counting. List rows/counts and m
 
 See [API contract](../docs/api-contract.md), [OpenAPI document](../docs/openapi.json) and [acceptance checklist](../docs/acceptance.md).
 
-`npm.cmd test` runs 57 database-independent API/security/documentation tests and 25 real-database integration tests. Real-database tests create a unique temporary SQLite file, deploy the checked-in migration, and clean up only their own directory. The browser-test server under src/tests/support also uses a separate temporary database and is excluded from production builds.
+`npm.cmd test` runs 112 tests: 30 isolated request-service unit tests, 57 database-independent API/security/documentation checks and 25 real-database integration tests. Unit tests cover all 16 status pairs, ownership, role restrictions, role-scoped reads and lost conditional-write conflicts. Real-database tests create a unique temporary SQLite file, deploy the checked-in migration, and clean up only their own directory. The browser-test server under src/tests/support also uses a separate temporary database and is excluded from production builds.
 
 /api/health reports liveness; /api/ready verifies the database tables and returns 503 when unavailable. The production server uses PrismaRepository. UnavailableRepository is retained only for failure-path tests; MemoryRepository exists only under tests.
 

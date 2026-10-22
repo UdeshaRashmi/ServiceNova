@@ -48,8 +48,20 @@ export function AppLayout() {
   const sidebarRef = useRef<HTMLElement>(null);
   const mainRef = useRef<HTMLDivElement>(null);
   const mobileTriggerRef = useRef<HTMLButtonElement>(null);
+  const accountTriggerRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const admin = user?.role === 'ADMIN';
+  useEffect(() => {
+    if (!account) return;
+    const closeAccount = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setAccount(false);
+        accountTriggerRef.current?.focus();
+      }
+    };
+    document.addEventListener('keydown', closeAccount);
+    return () => document.removeEventListener('keydown', closeAccount);
+  }, [account]);
   useEffect(() => {
     try {
       localStorage.setItem('servicenova.sidebar.collapsed', String(collapsed));
@@ -279,7 +291,6 @@ export function AppLayout() {
             <Link
               className="sidebar-account-link"
               to="/profile"
-              aria-label="View my profile"
               title={
                 collapsed
                   ? `${user?.name || 'My account'} — My profile`
@@ -325,6 +336,7 @@ export function AppLayout() {
           <div className="account-wrap">
             <button
               className="account-btn"
+              ref={accountTriggerRef}
               aria-expanded={account}
               onClick={() => setAccount(!account)}
             >
@@ -333,6 +345,7 @@ export function AppLayout() {
                 {user?.name}
                 <small>{admin ? 'Administrator' : 'Member'}</small>
               </span>
+              <span className="sr-only">Account options for {user?.name}</span>
               <ChevronDown size={15} />
             </button>
             {account && (
@@ -356,7 +369,7 @@ export function AppLayout() {
             )}
           </div>
         </header>
-        <main id="main-content" className="main-content">
+        <main id="main-content" className="main-content" tabIndex={-1}>
           <Outlet />
         </main>
         <footer className="main-footer">

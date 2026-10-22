@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useRef, useId, type ReactNode } from 'react';
 import { ArrowUpRight, CircleAlert, Inbox, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { label } from '../utils/format';
@@ -9,8 +9,9 @@ export function Logo({ to = '/' }: { to?: string }) {
     <Link
       to={to}
       className="brand"
-      aria-label={to === '/' ? 'ServiceNova home' : 'ServiceNova dashboard'}
+      title={to === '/' ? 'Go to home' : 'Go to dashboard'}
     >
+      <span className="sr-only">{to === '/' ? 'Home: ' : 'Dashboard: '}</span>
       <span className="brand-icon">
         <img src={serviceNovaLogo} alt="" aria-hidden="true" />
       </span>
@@ -119,22 +120,48 @@ export function ConfirmDialog({
   onClose: () => void;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
+  const titleId = useId();
+  const descriptionId = useId();
   useEffect(() => {
     const dialog = ref.current;
+    const previousFocus =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
     dialog?.showModal();
-    return () => dialog?.close();
+    return () => {
+      dialog?.close();
+      if (previousFocus?.isConnected) previousFocus.focus();
+    };
   }, []);
   return (
     <dialog
       ref={ref}
       className="dialog"
+      aria-labelledby={titleId}
+      aria-describedby={descriptionId}
+      onKeyDown={(event) => {
+        if (event.key !== 'Tab') return;
+        const controls = ref.current?.querySelectorAll<HTMLButtonElement>(
+          'button:not(:disabled)',
+        );
+        const first = controls?.[0];
+        const last = controls?.[controls.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last?.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first?.focus();
+        }
+      }}
       onCancel={(e) => {
         e.preventDefault();
         if (!busy) onClose();
       }}
     >
       <div className="panel-heading">
-        <h2>{title}</h2>
+        <h2 id={titleId}>{title}</h2>
         <button
           className="icon-btn"
           aria-label="Close dialog"
@@ -144,7 +171,7 @@ export function ConfirmDialog({
           <X size={19} />
         </button>
       </div>
-      <p>{children}</p>
+      <p id={descriptionId}>{children}</p>
       <div className="form-actions">
         <button className="btn secondary" disabled={busy} onClick={onClose}>
           Go back

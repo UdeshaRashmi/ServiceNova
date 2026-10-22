@@ -19,7 +19,7 @@
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   margin-bottom: 10px;
 }
@@ -92,16 +92,16 @@
   box-shadow: 0 0 0 4px #f1f5f9;
 }
 .activity-list h3 {
-  font-size: 14px;
+  font-size: 16px;
   margin: 0 0 6px;
 }
 .activity-list p {
-  font-size: 13px;
+  font-size: 15px;
   margin: 0 0 4px;
   color: #475569;
 }
 .activity-list time {
-  font-size: 12px;
+  font-size: 13px;
   color: #64748b;
 }
 .activity-list .history-note {
@@ -114,12 +114,12 @@
   justify-content: space-between;
   gap: 8px;
   padding: 0 24px 24px;
-  font-size: 12px;
+  font-size: 13px;
 }
 .insights-empty {
   padding: 0 24px 24px;
   color: #64748b;
-  font-size: 14px;
+  font-size: 16px;
 }
 @media (max-width: 600px) {
   .status-bars {

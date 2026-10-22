@@ -20,10 +20,10 @@ describe('request insights', () => {
       </MemoryRouter>,
     );
     expect(
-      screen.getByRole('link', { name: 'Cancelled: 1 of 10 requests' }),
+      screen.getByRole('link', { name: /Cancelled.*1.*10%/ }),
     ).toHaveAttribute('href', '/requests?status=CANCELLED');
     expect(
-      screen.getByRole('link', { name: 'In Progress: 3 of 10 requests' }),
+      screen.getByRole('link', { name: /In Progress.*3.*30%/ }),
     ).toHaveTextContent('30%');
   });
   it('shows an empty chart without invented percentages', () => {

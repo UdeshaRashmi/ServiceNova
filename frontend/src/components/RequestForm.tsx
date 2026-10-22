@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -28,6 +29,7 @@ export function RequestForm({
   initial?: RequestInput;
   onSubmit: (values: RequestInput) => Promise<void>;
 }) {
+  const fieldId = useId();
   const {
     register,
     handleSubmit,
@@ -61,10 +63,16 @@ export function RequestForm({
             <input
               placeholder="Give your request a clear, short title"
               {...register('title')}
+              aria-required="true"
+              aria-describedby={
+                errors.title ? `${fieldId}-title-error` : undefined
+              }
               aria-invalid={!!errors.title}
             />
             {errors.title && (
-              <span className="field-error">{errors.title.message}</span>
+              <span id={`${fieldId}-title-error`} className="field-error">
+                {errors.title.message}
+              </span>
             )}
           </label>
           <label>
@@ -73,19 +81,34 @@ export function RequestForm({
               rows={7}
               placeholder="Tell us what happened, what you expected, and anything else that might help…"
               {...register('description')}
+              aria-required="true"
+              aria-describedby={
+                errors.description
+                  ? `${fieldId}-description-error`
+                  : `${fieldId}-description-help`
+              }
               aria-invalid={!!errors.description}
             />
-            <span className="field-help">
+            <span id={`${fieldId}-description-help`} className="field-help">
               {watch('description')?.length || 0} / 5,000 characters
             </span>
             {errors.description && (
-              <span className="field-error">{errors.description.message}</span>
+              <span id={`${fieldId}-description-error`} className="field-error">
+                {errors.description.message}
+              </span>
             )}
           </label>
           <div className="form-row">
             <label>
               Category <span className="required">*</span>
-              <select {...register('category')}>
+              <select
+                {...register('category')}
+                aria-required="true"
+                aria-describedby={
+                  errors.category ? `${fieldId}-category-error` : undefined
+                }
+                aria-invalid={!!errors.category}
+              >
                 {categories.map((value) => (
                   <option key={value} value={value}>
                     {label(value)}
@@ -93,12 +116,21 @@ export function RequestForm({
                 ))}
               </select>
               {errors.category && (
-                <span className="field-error">{errors.category.message}</span>
+                <span id={`${fieldId}-category-error`} className="field-error">
+                  {errors.category.message}
+                </span>
               )}
             </label>
             <label>
               Priority <span className="required">*</span>
-              <select {...register('priority')}>
+              <select
+                {...register('priority')}
+                aria-required="true"
+                aria-describedby={
+                  errors.priority ? `${fieldId}-priority-error` : undefined
+                }
+                aria-invalid={!!errors.priority}
+              >
                 {priorities.map((value) => (
                   <option key={value} value={value}>
                     {label(value)}
@@ -106,7 +138,9 @@ export function RequestForm({
                 ))}
               </select>
               {errors.priority && (
-                <span className="field-error">{errors.priority.message}</span>
+                <span id={`${fieldId}-priority-error`} className="field-error">
+                  {errors.priority.message}
+                </span>
               )}
             </label>
           </div>

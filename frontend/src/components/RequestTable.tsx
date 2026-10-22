@@ -13,7 +13,12 @@ export function RequestTable({
 }) {
   if (!requests.length) return <EmptyState />;
   return (
-    <div className="table-scroll">
+    <div
+      className="table-scroll"
+      role="region"
+      aria-label="Requests table"
+      tabIndex={0}
+    >
       <table>
         <thead>
           <tr>
