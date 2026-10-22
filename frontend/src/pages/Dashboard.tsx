@@ -16,6 +16,7 @@ import { requestApi } from '../services/api';
 import { ErrorState, Loading, PageHeading } from '../components/ui';
 import { StatusChart } from '../components/RequestInsights';
 import { RequestTable } from '../components/RequestTable';
+import './dashboard.css';
 
 export function Dashboard() {
   const { user } = useAuth();
@@ -29,7 +30,7 @@ export function Dashboard() {
   }, []);
   const { data, error, loading, reload } = useResource(loader);
   return (
-    <>
+    <div className="dashboard-page">
       <PageHeading
         eyebrow={admin ? 'WORKSPACE OVERVIEW' : 'YOUR WORKSPACE AT A GLANCE'}
         title={`Welcome back, ${user?.name.split(' ')[0]}.`}
@@ -59,6 +60,7 @@ export function Dashboard() {
               {[
                 {
                   title: 'Total requests',
+                  to: '/requests',
                   value: data.metrics.total,
                   icon: Layers3,
                   color: 'blue',
@@ -66,6 +68,7 @@ export function Dashboard() {
                 },
                 {
                   title: 'Pending',
+                  to: '/requests?status=PENDING',
                   value: data.metrics.pending,
                   icon: Clock3,
                   color: 'amber',
@@ -73,6 +76,7 @@ export function Dashboard() {
                 },
                 {
                   title: 'In progress',
+                  to: '/requests?status=IN_PROGRESS',
                   value: data.metrics.inProgress,
                   icon: LoaderCircle,
                   color: 'teal',
@@ -80,13 +84,18 @@ export function Dashboard() {
                 },
                 {
                   title: 'Resolved',
+                  to: '/requests?status=RESOLVED',
                   value: data.metrics.resolved,
                   icon: CheckCheck,
                   color: 'green',
                   text: 'Successfully completed',
                 },
               ].map((item) => (
-                <article className="stat-card" key={item.title}>
+                <Link
+                  className={`stat-card stat-${item.color}`}
+                  to={item.to}
+                  key={item.title}
+                >
                   <div className="stat-top">
                     <span>{item.title}</span>
                     <span className={`stat-icon ${item.color}`}>
@@ -95,35 +104,40 @@ export function Dashboard() {
                   </div>
                   <strong>{item.value}</strong>
                   <p>{item.text}</p>
-                </article>
+                  <span className="stat-explore">
+                    View requests <ArrowUpRight size={16} aria-hidden="true" />
+                  </span>
+                </Link>
               ))}
             </section>
-            <StatusChart metrics={data.metrics} />
-            <section className="welcome-banner">
-              <div>
-                <span className="eyebrow">
-                  {admin ? 'KEEP YOUR TEAM MOVING' : 'WE’RE HERE TO HELP'}
-                </span>
-                <h2>
-                  {admin
-                    ? 'Great service starts with a clear overview.'
-                    : 'Something needs a solution?'}
-                </h2>
-                <p>
-                  {admin
-                    ? 'Review incoming requests, prioritize work, and move things forward.'
-                    : 'Send a request to the right team. We’ll keep you in the loop.'}
-                </p>
-                <Link to={admin ? '/users' : '/requests/new'}>
-                  {admin ? 'Manage your team' : 'Let’s get it sorted'}
-                  <ArrowUpRight size={17} />
-                </Link>
-              </div>
-              <div className="banner-symbol" aria-hidden="true">
-                <Layers3 size={65} strokeWidth={1.2} />
-              </div>
-            </section>
-            <section className="panel">
+            <div className="dashboard-overview">
+              <StatusChart metrics={data.metrics} />
+              <section className="welcome-banner">
+                <div>
+                  <span className="eyebrow">
+                    {admin ? 'KEEP YOUR TEAM MOVING' : 'WE’RE HERE TO HELP'}
+                  </span>
+                  <h2>
+                    {admin
+                      ? 'Help your team move forward.'
+                      : 'A little help, one request away.'}
+                  </h2>
+                  <p>
+                    {admin
+                      ? 'Review incoming requests, prioritize work, and move things forward.'
+                      : 'Send a request to the right team. We’ll keep you in the loop.'}
+                  </p>
+                  <Link to={admin ? '/users' : '/requests/new'}>
+                    {admin ? 'Manage your team' : 'Let’s get it sorted'}
+                    <ArrowUpRight size={17} />
+                  </Link>
+                </div>
+                <div className="banner-symbol" aria-hidden="true">
+                  <Layers3 size={65} strokeWidth={1.2} />
+                </div>
+              </section>
+            </div>
+            <section className="panel dashboard-recent">
               <div className="panel-heading">
                 <div>
                   <h2>Recent requests</h2>
@@ -150,13 +164,9 @@ export function Dashboard() {
                 <ArrowRight size={20} />
               </Link>
             )}
-            <p className="dashboard-note">
-              <span className="online-dot" />A little organization. A lot of
-              possibility.
-            </p>
           </>
         )
       )}
-    </>
+    </div>
   );
 }

@@ -253,6 +253,13 @@ test('mobile navigation stays usable without page overflow', async ({
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await register(page);
+  await expect(
+    page.getByRole('heading', { name: 'Request status overview', exact: true }),
+  ).toBeVisible();
+  await page.screenshot({
+    path: 'test-results/mobile-dashboard.png',
+    fullPage: true,
+  });
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= window.innerWidth,
