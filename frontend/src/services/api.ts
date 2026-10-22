@@ -1,6 +1,7 @@
 import axios from 'axios';
 import type {
   Metrics,
+  RequestActivity,
   PageResult,
   ServiceRequest,
   Status,
@@ -41,6 +42,13 @@ export const authApi = {
   logout: () => api.post('/auth/logout'),
 };
 export const requestApi = {
+  history: async (id: string, page = 1) =>
+    (
+      await api.get<PageResult<RequestActivity>>(
+        `/requests/${encodeURIComponent(id)}/history`,
+        { params: { page, limit: 10 } },
+      )
+    ).data,
   list: async (params: Record<string, string | number> = {}) =>
     (await api.get<PageResult<ServiceRequest>>('/requests', { params })).data,
   metrics: async () =>

@@ -21,6 +21,7 @@ export class UnavailableRepository implements Repository {
   updateUserName = unavailable;
   listRequests = unavailable;
   metrics = unavailable;
+  listHistory = unavailable;
   findRequest = unavailable;
   createRequest = unavailable;
   updatePendingRequest = unavailable;

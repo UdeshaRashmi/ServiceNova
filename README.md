@@ -219,7 +219,7 @@ npm.cmd exec -- playwright install chromium
 npm.cmd run test:e2e
 ```
 
-Backend tests include 56 API/security tests using repository doubles and 20 tests against freshly migrated temporary SQLite databases. Frontend tests cover 21 validation, access and UI behaviors, including sidebar collapse persistence, role-specific navigation and mobile drawer controls. Five browser workflows cover public Home navigation and the authenticated application, using a separate temporary database/API (3010) and Vite (5174). They do not reset or seed the development database. Test-only admin credentials are confined to this isolated environment.
+Backend tests include 56 API/security tests using repository doubles and 25 tests against freshly migrated temporary SQLite databases. Frontend tests cover 25 validation, access and UI behaviors, including sidebar collapse persistence, role-specific navigation and mobile drawer controls. Five browser workflows cover public Home navigation and the authenticated application, using a separate temporary database/API (3010) and Vite (5174). They do not reset or seed the development database. Test-only admin credentials are confined to this isolated environment.
 
 The [acceptance checklist](docs/acceptance.md) records final executed checks and verification limits. Failed browser traces/screenshots appear in ignored `frontend/test-results/`.
 
@@ -242,8 +242,14 @@ Previously verified: both production builds, 76 backend tests, four Chromium ful
 - Rate limiting uses per-process memory; multiple instances require a shared store.
 - SQLite substring search has limited non-ASCII case folding and no full-text index.
 - Logout signs the account out of all sessions. There is no password reset, email verification or role-changing API.
-- The profile is read-only; administrators may update display names. Requests have no attachments, comments or audit timeline.
+- The profile is read-only; administrators may update display names. Requests have no attachments or comments.
 - Chromium tests include mobile viewport emulation; physical devices, Firefox/Safari, load tests and a complete accessibility audit remain outside verified coverage.
-- No public deployment or demo video is claimed. Future improvements include password recovery, notifications, audit history, full-text search, shared rate limiting and PostgreSQL hosting.
+- No public deployment or demo video is claimed. Future improvements include password recovery, notifications, full-text search, shared rate limiting and PostgreSQL hosting.
 
 Demo video: to be recorded; see [demo checklist](docs/demo-checklist.md).
+
+## Request history and status chart
+
+The dashboard shows a clickable status breakdown from role-scoped database totals, including cancellations. Request details include paginated activity with actor, time, edited field names and status changes. Existing requests start with a clearly labelled tracking baseline. Apply the additive migration with `cd backend` then `npm.cmd run db:migrate` and restart the backend after updating. No database reset or reseed is needed.
+
+Verified for this update: both production builds, 81 backend tests, 25 frontend tests and database migration status. Browser visual verification of the new chart and history remains pending.

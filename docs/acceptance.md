@@ -63,3 +63,17 @@
 No public deployment, Firefox/Safari coverage, load test or complete accessibility audit is claimed. Update this checklist only from executed checks. Browser-test account data is isolated from local development data.
 
 Previous full-stack verification totals: 76 backend tests (including 20 with real SQLite), 14 frontend tests, and 4 browser workflows. Current frontend total: 21 passing tests after adding public Home and the sidebar redesign. One mobile drawer accessibility issue found by earlier browser testing was corrected by hiding the closed offscreen sidebar from visibility/focus.
+
+
+## Request history and dashboard chart
+
+- [x] Additive history migration applied to the development database after an ignored local SQLite backup; migration status is up to date
+- [x] Request history records creation, actual field changes and status transitions atomically, with owner/admin access and pagination
+- [x] Existing requests have an explicit tracking baseline; earlier history is not reconstructed
+- [x] Dashboard chart uses role-scoped totals and links to status filters, with a zero-data state
+- [x] Backend production build and all 81 tests passed (56 API/security tests, 25 migrated SQLite integration tests)
+- [x] Frontend production build and all 25 tests passed, including chart counts, history pagination, baseline explanation and retry
+- [x] Windows temporary-database cleanup retries transient ENOTEMPTY after disconnect, within the already verified unique temporary directory
+- [ ] Browser visual review of the history and chart remains pending; the earlier browser-suite limitation above still applies
+
+Commit checkpoint: `feat(requests): add activity history and dashboard status chart`. No commit created automatically.

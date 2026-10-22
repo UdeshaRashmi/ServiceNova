@@ -50,3 +50,13 @@ export const transitions: Record<Status, Status[]> = {
   RESOLVED: [],
   CANCELLED: [],
 };
+
+export interface RequestActivity {
+  id: number;
+  type: 'CREATED' | 'UPDATED' | 'STATUS_CHANGED' | 'TRACKING_STARTED';
+  actor: { id: string; name: string } | null;
+  fromStatus: Status | null;
+  toStatus: Status | null;
+  changedFields: string | null;
+  createdAt: string;
+}

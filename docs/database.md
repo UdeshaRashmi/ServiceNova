@@ -5,6 +5,8 @@ ServiceNova uses SQLite and Prisma ORM 7. The runtime SQLite adapter and Prisma 
 ```mermaid
 erDiagram
   User ||--o{ ServiceRequest : owns
+  ServiceRequest ||--o{ RequestActivity : records
+  User o|--o{ RequestActivity : performs
   User {
     string id PK
     string name
@@ -79,3 +81,7 @@ Real-database tests allocate a unique temporary SQLite file, apply the actual ch
 Browser tests start a separate migrated temporary database/API (3010) and Vite (5174). Their admin credentials are fixed test fixtures only; they are never inserted into the development database.
 
 SQLite is suitable for local demonstration and a single small server. PostgreSQL migration requires changing the datasource/adapter, generating PostgreSQL-specific migrations, transferring data, and rerunning integration tests. The domain, API and repository contract are reusable; SQLite SQL migrations and case-sensitivity semantics are not portable unchanged. Multi-instance rate limiting and higher write concurrency also need deployment-specific work.
+
+## Request activity
+
+The additive `20261022000100_request_activity` migration adds RequestActivity without replacing requests or users. An auto-incrementing activity ID provides stable newest-first pagination with an index on `(requestId, id)`. Events reference the request (cascade on deletion) and optional actor (set null on deletion). Only actor ID/current display name is exposed. Changed fields contain names, not historical descriptions. Each mutation and event share a transaction; failed writes roll back both. Existing requests receive a TRACKING_STARTED event at migration time with their current status. Earlier changes are not fabricated.

@@ -47,3 +47,8 @@ export const requestQuerySchema = z.strictObject({
   sort: z.enum(['newest', 'oldest']).default('newest'),
 });
 export const userQuerySchema = z.strictObject(paging);
+
+export const historyQuerySchema = userQuerySchema.pick({
+  page: true,
+  limit: true,
+});

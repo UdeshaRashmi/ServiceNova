@@ -32,6 +32,7 @@ export class PrismaRepository implements Repository {
       await this.db.$transaction([
         this.db.$queryRaw`SELECT "id" FROM "User" LIMIT 1`,
         this.db.$queryRaw`SELECT "id" FROM "ServiceRequest" LIMIT 1`,
+        this.db.$queryRaw`SELECT "id" FROM "RequestActivity" LIMIT 1`,
       ]);
     } catch {
       throw new AppError(
@@ -170,16 +171,41 @@ export class PrismaRepository implements Repository {
       include: ownerInclude,
     });
   }
+  async listHistory(id: string, query: PageQuery) {
+    const where = { requestId: id };
+    const [data, count] = await this.db.$transaction([
+      this.db.requestActivity.findMany({
+        where,
+        include: { actor: { select: { id: true, name: true } } },
+        orderBy: { id: 'desc' },
+        skip: (query.page - 1) * query.limit,
+        take: query.limit,
+      }),
+      this.db.requestActivity.count({ where }),
+    ]);
+    return { data, pagination: pagination(query.page, query.limit, count) };
+  }
   createRequest(userId: string, input: RequestInput) {
-    return this.db.serviceRequest.create({
-      data: {
-        title: input.title,
-        description: input.description,
-        category: input.category,
-        priority: input.priority,
-        userId,
-        status: 'PENDING',
-      },
+    return this.db.$transaction(async (tx) => {
+      const request = await tx.serviceRequest.create({
+        data: {
+          title: input.title,
+          description: input.description,
+          category: input.category,
+          priority: input.priority,
+          userId,
+          status: 'PENDING',
+        },
+      });
+      await tx.requestActivity.create({
+        data: {
+          requestId: request.id,
+          actorId: userId,
+          type: 'CREATED',
+          toStatus: 'PENDING',
+        },
+      });
+      return request;
     });
   }
   updatePendingRequest(
@@ -188,6 +214,16 @@ export class PrismaRepository implements Repository {
     input: Partial<RequestInput>,
   ) {
     return this.db.$transaction(async (tx) => {
+      const previous = await tx.serviceRequest.findFirst({
+        where: { id, userId, status: 'PENDING' },
+      });
+      if (!previous) return null;
+      const changedFields = (
+        Object.keys(input) as (keyof RequestInput)[]
+      ).filter(
+        (key) => input[key] !== undefined && input[key] !== previous[key],
+      );
+      if (!changedFields.length) return previous;
       const result = await tx.serviceRequest.updateMany({
         where: { id, userId, status: 'PENDING' },
         data: {
@@ -197,6 +233,15 @@ export class PrismaRepository implements Repository {
           priority: input.priority,
         },
       });
+      if (result.count)
+        await tx.requestActivity.create({
+          data: {
+            requestId: id,
+            actorId: userId,
+            type: 'UPDATED',
+            changedFields: changedFields.join(','),
+          },
+        });
       return result.count
         ? tx.serviceRequest.findUnique({ where: { id } })
         : null;
@@ -206,6 +251,7 @@ export class PrismaRepository implements Repository {
     id: string,
     expected: Status,
     next: Status,
+    actorId: string,
     ownerId?: string,
   ) {
     return this.db.$transaction(async (tx) => {
@@ -213,6 +259,16 @@ export class PrismaRepository implements Repository {
         where: { id, status: expected, userId: ownerId },
         data: { status: next },
       });
+      if (result.count)
+        await tx.requestActivity.create({
+          data: {
+            requestId: id,
+            actorId,
+            type: 'STATUS_CHANGED',
+            fromStatus: expected,
+            toStatus: next,
+          },
+        });
       return result.count
         ? tx.serviceRequest.findUnique({ where: { id } })
         : null;

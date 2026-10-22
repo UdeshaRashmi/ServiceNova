@@ -1,6 +1,7 @@
 import type { Repository } from '../repositories/repository.js';
 import type {
   PublicUser,
+  PageQuery,
   RequestInput,
   RequestQuery,
   Status,
@@ -38,6 +39,10 @@ export class RequestService {
       throw new AppError(404, 'REQUEST_NOT_FOUND', 'Request not found.');
     return request;
   }
+  async history(actor: PublicUser, id: string, query: PageQuery) {
+    await this.get(actor, id);
+    return this.repository.listHistory(id, query);
+  }
   create(actor: PublicUser, input: RequestInput) {
     this.memberOnly(actor);
     return this.repository.createRequest(actor.id, input);
@@ -63,6 +68,7 @@ export class RequestService {
       'PENDING',
       'CANCELLED',
       actor.id,
+      actor.id,
     );
     if (!updated) throw conflict();
     return updated;
@@ -81,6 +87,7 @@ export class RequestService {
       id,
       request.status,
       next,
+      actor.id,
     );
     if (!updated) throw conflict();
     return updated;

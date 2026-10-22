@@ -1,5 +1,6 @@
 import type {
   Metrics,
+  RequestActivity,
   Page,
   PageQuery,
   PublicUser,
@@ -34,6 +35,7 @@ export interface Repository {
   ): Promise<(PublicUser & { _count: { requests: number } }) | null>;
   updateUserName(id: string, name: string): Promise<PublicUser | null>;
   listRequests(query: RequestQuery): Promise<Page<RequestView>>;
+  listHistory(id: string, query: PageQuery): Promise<Page<RequestActivity>>;
   metrics(userId?: string): Promise<Metrics>;
   findRequest(id: string): Promise<RequestView | null>;
   createRequest(userId: string, input: RequestInput): Promise<RequestRecord>;
@@ -46,6 +48,7 @@ export interface Repository {
     id: string,
     expected: Status,
     next: Status,
+    actorId: string,
     ownerId?: string,
   ): Promise<RequestRecord | null>;
 }

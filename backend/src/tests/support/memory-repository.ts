@@ -4,6 +4,7 @@ import {
   pagination,
   publicUser,
   type PageQuery,
+  type RequestActivity,
   type RequestInput,
   type RequestQuery,
   type RequestRecord,
@@ -16,7 +17,38 @@ import { AppError } from '../../utils/errors.js';
 export class MemoryRepository implements Repository {
   readonly users = new Map<string, UserRecord>();
   readonly requests = new Map<string, RequestRecord>();
+  readonly activities: RequestActivity[] = [];
   async ready() {}
+  async listHistory(id: string, query: PageQuery) {
+    const all = this.activities
+      .filter((item) => item.requestId === id)
+      .reverse();
+    return {
+      data: all.slice((query.page - 1) * query.limit, query.page * query.limit),
+      pagination: pagination(query.page, query.limit, all.length),
+    };
+  }
+  private activity(
+    requestId: string,
+    actorId: string,
+    type: RequestActivity['type'],
+    fromStatus: Status | null = null,
+    toStatus: Status | null = null,
+    changedFields: string | null = null,
+  ) {
+    const user = this.users.get(actorId);
+    this.activities.push({
+      id: this.activities.length + 1,
+      requestId,
+      actorId,
+      actor: user ? { id: user.id, name: user.name } : null,
+      type,
+      fromStatus,
+      toStatus,
+      changedFields,
+      createdAt: new Date(),
+    });
+  }
   async findUserByEmail(email: string) {
     return (
       [...this.users.values()].find((user) => user.email === email) || null
@@ -159,6 +191,7 @@ export class MemoryRepository implements Repository {
       ...input,
     };
     this.requests.set(request.id, request);
+    this.activity(request.id, userId, 'CREATED', null, 'PENDING');
     return { ...request };
   }
   async updatePendingRequest(
@@ -169,6 +202,11 @@ export class MemoryRepository implements Repository {
     const request = this.requests.get(id);
     if (!request || request.userId !== userId || request.status !== 'PENDING')
       return null;
+    const changed = (Object.keys(input) as (keyof RequestInput)[]).filter(
+      (key) => input[key] !== undefined && input[key] !== request[key],
+    );
+    if (!changed.length) return { ...request };
+    this.activity(id, userId, 'UPDATED', null, null, changed.join(','));
     Object.assign(request, input, { updatedAt: new Date() });
     return { ...request };
   }
@@ -176,6 +214,7 @@ export class MemoryRepository implements Repository {
     id: string,
     expected: Status,
     next: Status,
+    actorId: string,
     ownerId?: string,
   ) {
     const request = this.requests.get(id);
@@ -185,6 +224,7 @@ export class MemoryRepository implements Repository {
       (ownerId && request.userId !== ownerId)
     )
       return null;
+    this.activity(id, actorId, 'STATUS_CHANGED', expected, next);
     request.status = next;
     request.updatedAt = new Date();
     return { ...request };

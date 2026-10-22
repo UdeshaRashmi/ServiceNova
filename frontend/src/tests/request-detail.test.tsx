@@ -12,7 +12,13 @@ const mocks = vi.hoisted(() => ({
   >,
 }));
 vi.mock('../services/api', () => ({
-  requestApi: { get: mocks.get },
+  requestApi: {
+    get: mocks.get,
+    history: async () => ({
+      data: [],
+      pagination: { page: 1, limit: 10, totalItems: 0, totalPages: 0 },
+    }),
+  },
   errorMessage: () => 'Could not load request.',
 }));
 vi.mock('../contexts/AuthContext', () => ({

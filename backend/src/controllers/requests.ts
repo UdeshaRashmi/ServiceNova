@@ -2,6 +2,7 @@ import type { RequestHandler } from 'express';
 import type { RequestService } from '../services/requests.js';
 import {
   idSchema,
+  historyQuerySchema,
   requestQuerySchema,
   requestSchema,
   statusSchema,
@@ -21,6 +22,15 @@ export function requestControllers(service: RequestService) {
     res.json({
       data: await service.get(res.locals.actor, idSchema.parse(req.params.id)),
     });
+  };
+  const history: RequestHandler = async (req, res) => {
+    res.json(
+      await service.history(
+        res.locals.actor,
+        idSchema.parse(req.params.id),
+        historyQuerySchema.parse(req.query),
+      ),
+    );
   };
   const create: RequestHandler = async (req, res) => {
     const request = await service.create(
@@ -54,5 +64,5 @@ export function requestControllers(service: RequestService) {
       ),
     });
   };
-  return { list, metrics, get, create, update, cancel, transition };
+  return { list, metrics, history, get, create, update, cancel, transition };
 }

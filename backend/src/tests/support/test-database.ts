@@ -32,7 +32,12 @@ export async function testDatabase() {
       !basename(directory).startsWith('servicenova-test-')
     )
       throw new Error('Unsafe test cleanup path.');
-    await rm(directory, { recursive: true, force: true });
+    await rm(directory, {
+      recursive: true,
+      force: true,
+      maxRetries: 3,
+      retryDelay: 100,
+    });
   }
   return { db, url, close };
 }

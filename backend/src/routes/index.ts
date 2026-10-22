@@ -30,6 +30,7 @@ export function apiRoutes(repository: Repository, config: Config) {
   requestRouter.get('/', requests.list);
   requestRouter.post('/', requests.create);
   requestRouter.get('/:id', requests.get);
+  requestRouter.get('/:id/history', requests.history);
   requestRouter.patch('/:id', requests.update);
   requestRouter.delete('/:id', requests.cancel);
   requestRouter.patch('/:id/status', adminOnly, requests.transition);

@@ -45,11 +45,13 @@ model User {
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
   requests       ServiceRequest[]
+  activities RequestActivity[]
 
   @@index([createdAt, id])
 }
 
 model ServiceRequest {
+  activities RequestActivity[]
   id          String        @id @default(uuid())
   title       String
   description String
@@ -66,4 +68,26 @@ model ServiceRequest {
   @@index([category, createdAt, id])
   @@index([priority, createdAt, id])
   @@index([createdAt, id])
+}
+
+
+enum RequestActivityType {
+  CREATED
+  UPDATED
+  STATUS_CHANGED
+  TRACKING_STARTED
+}
+
+model RequestActivity {
+  id Int @id @default(autoincrement())
+  requestId String
+  request ServiceRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  actorId String?
+  actor User? @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  type RequestActivityType
+  fromStatus RequestStatus?
+  toStatus RequestStatus?
+  changedFields String?
+  createdAt DateTime @default(now())
+  @@index([requestId, id])
 }

@@ -26,6 +26,7 @@ Error: `{ "error": { "message": "A safe, user-facing message" } }`, with an appr
 | GET | `/requests` | Paginated requests scoped by role |
 | POST | `/requests` | `{title,description,category,priority}` → request |
 | GET | `/requests/:id` | Request; authorized owner information |
+| GET | `/requests/:id/history` | Owner/admin activity, newest first; `page`, `limit` (5/10/20) |
 | PATCH | `/requests/:id` | Member updates own pending request fields |
 | DELETE | `/requests/:id` | Cancel own pending request; **no hard deletion** |
 | PATCH | `/requests/:id/status` | Administrator `{status}` transition |
@@ -54,3 +55,5 @@ Request: `id`, `title`, `description`, `category`, `priority`, `status`, `userId
 - Profile is read-only. Admin member management permits display-name updates only.
 
 Production cookies must be HttpOnly, Secure and use an appropriate SameSite policy. The backend must verify request origins or use CSRF tokens for mutations. Cookies are authoritative; frontend state is not an authorization boundary.
+
+History returns the standard paginated envelope. Each event contains `id`, `requestId`, `actorId`, `actor: {id,name} | null`, `type`, `fromStatus`, `toStatus`, `changedFields`, and `createdAt`. Types: CREATED, UPDATED, STATUS_CHANGED, TRACKING_STARTED. Updates record changed field names, without storing prior text. No-op edits and rejected actions create no events. Existing requests get a migration-time TRACKING_STARTED baseline; earlier changes cannot be reconstructed. Creation, edits and transitions commit together with their event.

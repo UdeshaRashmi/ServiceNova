@@ -6,6 +6,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useResource } from '../hooks/useResource';
 import { errorMessage, requestApi } from '../services/api';
 import { transitions, type Status } from '../types';
+import { RequestTimeline } from '../components/RequestInsights';
 import { date, label } from '../utils/format';
 import {
   Badge,
@@ -56,29 +57,32 @@ export function RequestDetail() {
         action={<Badge value={data.status} />}
       />
       <div className="detail-layout">
-        <section className="panel">
-          <div className="panel-heading">
-            <h2>Request details</h2>
-          </div>
-          <div className="detail-body">
-            <p className="eyebrow">DESCRIPTION</p>
-            <p className="description-text">{data.description}</p>
-            <div className="detail-properties">
-              <div>
-                <span>Category</span>
-                <strong>{label(data.category)}</strong>
-              </div>
-              <div>
-                <span>Priority</span>
-                <Badge value={data.priority} />
-              </div>
-              <div>
-                <span>Request ID</span>
-                <code>{data.id}</code>
+        <div className="detail-main">
+          <section className="panel">
+            <div className="panel-heading">
+              <h2>Request details</h2>
+            </div>
+            <div className="detail-body">
+              <p className="eyebrow">DESCRIPTION</p>
+              <p className="description-text">{data.description}</p>
+              <div className="detail-properties">
+                <div>
+                  <span>Category</span>
+                  <strong>{label(data.category)}</strong>
+                </div>
+                <div>
+                  <span>Priority</span>
+                  <Badge value={data.priority} />
+                </div>
+                <div>
+                  <span>Request ID</span>
+                  <code>{data.id}</code>
+                </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
+          <RequestTimeline id={id} />
+        </div>
         <aside className="detail-aside">
           <section className="panel">
             <div className="panel-heading">

@@ -79,3 +79,15 @@ export function publicUser(user: UserRecord): PublicUser {
 export function pagination(page: number, limit: number, totalItems: number) {
   return { page, limit, totalItems, totalPages: Math.ceil(totalItems / limit) };
 }
+
+export interface RequestActivity {
+  id: number;
+  requestId: string;
+  actorId: string | null;
+  actor: { id: string; name: string } | null;
+  type: 'CREATED' | 'UPDATED' | 'STATUS_CHANGED' | 'TRACKING_STARTED';
+  fromStatus: Status | null;
+  toStatus: Status | null;
+  changedFields: string | null;
+  createdAt: Date;
+}

@@ -1,0 +1,131 @@
+.request-chart {
+  margin-bottom: 24px;
+}
+.status-bars {
+  list-style: none;
+  padding: 8px 24px 24px;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px 36px;
+}
+.status-bars a {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  border-radius: 6px;
+}
+.bar-caption {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.bar-caption small {
+  color: #64748b;
+  font-weight: 400;
+}
+.bar-track {
+  display: block;
+  overflow: hidden;
+  height: 9px;
+  border-radius: 8px;
+  background: #eef2f6;
+}
+.bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #d69a22;
+}
+.bar-in_progress {
+  background: #0d9488;
+}
+.bar-resolved {
+  background: #279565;
+}
+.bar-cancelled {
+  background: #94a3b8;
+}
+.detail-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.activity-list {
+  list-style: none;
+  margin: 0;
+  padding: 4px 24px 24px;
+}
+.activity-list li {
+  position: relative;
+  display: flex;
+  gap: 16px;
+  padding: 0 0 26px;
+}
+.activity-list li:last-child {
+  padding-bottom: 0;
+}
+.activity-list li:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  top: 15px;
+  bottom: 0;
+  left: 5px;
+  width: 1px;
+  background: #e2e8f0;
+}
+.activity-marker {
+  flex: 0 0 11px;
+  height: 11px;
+  margin-top: 5px;
+  border-radius: 50%;
+  background: #0d9488;
+  box-shadow: 0 0 0 4px #f0fdfa;
+}
+.activity-updated,
+.activity-tracking_started {
+  background: #94a3b8;
+  box-shadow: 0 0 0 4px #f1f5f9;
+}
+.activity-list h3 {
+  font-size: 14px;
+  margin: 0 0 6px;
+}
+.activity-list p {
+  font-size: 13px;
+  margin: 0 0 4px;
+  color: #475569;
+}
+.activity-list time {
+  font-size: 12px;
+  color: #64748b;
+}
+.activity-list .history-note {
+  margin-top: 10px;
+  line-height: 1.6;
+}
+.history-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 24px 24px;
+  font-size: 12px;
+}
+.insights-empty {
+  padding: 0 24px 24px;
+  color: #64748b;
+  font-size: 14px;
+}
+@media (max-width: 600px) {
+  .status-bars {
+    grid-template-columns: 1fr;
+  }
+  .history-pagination {
+    flex-wrap: wrap;
+  }
+}

@@ -14,6 +14,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useResource } from '../hooks/useResource';
 import { requestApi } from '../services/api';
 import { ErrorState, Loading, PageHeading } from '../components/ui';
+import { StatusChart } from '../components/RequestInsights';
 import { RequestTable } from '../components/RequestTable';
 
 export function Dashboard() {
@@ -97,6 +98,7 @@ export function Dashboard() {
                 </article>
               ))}
             </section>
+            <StatusChart metrics={data.metrics} />
             <section className="welcome-banner">
               <div>
                 <span className="eyebrow">

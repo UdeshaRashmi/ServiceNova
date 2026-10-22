@@ -3,7 +3,7 @@
   "info": {
     "title": "ServiceNova REST API",
     "version": "1.0.0",
-    "description": "ServiceNova REST API with Prisma/SQLite persistence. Auth cookies are HttpOnly, SameSite=Lax, and Secure in production. Logout invalidates all user sessions. Every mutation requires an exact configured Origin. Members access only their own requests; other owners’ request IDs return 404. Administrators are created through an explicit controlled seed. API tests cover isolated migrated databases."
+    "description": "ServiceNova REST API with Prisma/SQLite persistence. Auth cookies are HttpOnly, SameSite=Lax, and Secure in production. Logout invalidates all user sessions. Every mutation requires an exact configured Origin. Members access only their own requests; other owners\u00e2\u20ac\u2122 request IDs return 404. Administrators are created through an explicit controlled seed. API tests cover isolated migrated databases."
   },
   "servers": [
     {
@@ -969,7 +969,7 @@
     "/requests/{id}/status": {
       "patch": {
         "summary": "Administrator status transition",
-        "description": "ADMIN only. PENDING → IN_PROGRESS/CANCELLED. IN_PROGRESS → RESOLVED/CANCELLED. RESOLVED/CANCELLED are terminal. Same-state changes are rejected.",
+        "description": "ADMIN only. PENDING \u00e2\u2020\u2019 IN_PROGRESS/CANCELLED. IN_PROGRESS \u00e2\u2020\u2019 RESOLVED/CANCELLED. RESOLVED/CANCELLED are terminal. Same-state changes are rejected.",
         "tags": [
           "Requests"
         ],
@@ -1338,6 +1338,108 @@
           }
         }
       }
+    },
+    "/requests/{id}/history": {
+      "get": {
+        "summary": "List request activity, newest first; owner or administrator only",
+        "tags": [
+          "Requests"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000000,
+              "default": 1
+            },
+            "description": "One-based page"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "enum": [
+                5,
+                10,
+                20
+              ],
+              "default": 10
+            },
+            "description": "Page size"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "data",
+                    "pagination"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/RequestActivity"
+                      }
+                    },
+                    "pagination": {
+                      "$ref": "#/components/schemas/Pagination"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Error415"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        },
+        "description": "Existing requests begin with TRACKING_STARTED at migration time; earlier history is unavailable. Actor contains only id and current display name. Events are written atomically with request mutations."
+      }
     }
   },
   "components": {
@@ -1697,6 +1799,85 @@
             "description": "Admin only; includes all registered accounts"
           }
         }
+      },
+      "RequestActivity": {
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "actor",
+          "fromStatus",
+          "toStatus",
+          "changedFields",
+          "createdAt"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "actorId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "CREATED",
+              "UPDATED",
+              "STATUS_CHANGED",
+              "TRACKING_STARTED"
+            ]
+          },
+          "actor": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "fromStatus": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "PENDING",
+              "IN_PROGRESS",
+              "RESOLVED",
+              "CANCELLED",
+              null
+            ]
+          },
+          "toStatus": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "PENDING",
+              "IN_PROGRESS",
+              "RESOLVED",
+              "CANCELLED",
+              null
+            ]
+          },
+          "changedFields": {
+            "type": "string",
+            "nullable": true,
+            "description": "Comma-separated field names only; no previous contents."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
       }
     },
     "responses": {
@@ -1731,7 +1912,7 @@
         }
       },
       "Error404": {
-        "description": "Not found; other owners’ requests also use 404",
+        "description": "Not found; other owners\u00e2\u20ac\u2122 requests also use 404",
         "content": {
           "application/json": {
             "schema": {

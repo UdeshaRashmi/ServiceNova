@@ -328,8 +328,18 @@ describe('database constraints and conditional writes', () => {
   it('allows only one competing transition from the same expected state', async () => {
     const created = await repository.createRequest(member.id, input);
     const results = await Promise.all([
-      repository.transitionRequest(created.id, 'PENDING', 'IN_PROGRESS'),
-      repository.transitionRequest(created.id, 'PENDING', 'CANCELLED'),
+      repository.transitionRequest(
+        created.id,
+        'PENDING',
+        'IN_PROGRESS',
+        admin.id,
+      ),
+      repository.transitionRequest(
+        created.id,
+        'PENDING',
+        'CANCELLED',
+        admin.id,
+      ),
     ]);
     expect(results.filter(Boolean)).toHaveLength(1);
     expect(
@@ -342,6 +352,7 @@ describe('database constraints and conditional writes', () => {
         created.id,
         'PENDING',
         'CANCELLED',
+        other.id,
         other.id,
       ),
     ).toBeNull();
@@ -391,5 +402,118 @@ describe('database constraints and conditional writes', () => {
       (await database.db.user.findUniqueOrThrow({ where: { id: member.id } }))
         .role,
     ).toBe('USER');
+  });
+});
+
+describe('persistent request history', () => {
+  it('records actual changes in order with safe actor details', async () => {
+    const created = await post('/api/requests').send(input).expect(201);
+    const id = created.body.data.id;
+    await patch(`/api/requests/${id}`)
+      .send({ title: 'Updated billing problem' })
+      .expect(200);
+    await patch(`/api/requests/${id}`)
+      .send({ title: 'Updated billing problem' })
+      .expect(200);
+    await patch(`/api/requests/${id}/status`, adminCookie)
+      .send({ status: 'IN_PROGRESS' })
+      .expect(200);
+    const result = await get(`/api/requests/${id}/history`).expect(200);
+    expect(result.body.data.map((item: { type: string }) => item.type)).toEqual(
+      ['STATUS_CHANGED', 'UPDATED', 'CREATED'],
+    );
+    expect(result.body.data[0]).toMatchObject({
+      fromStatus: 'PENDING',
+      toStatus: 'IN_PROGRESS',
+      actor: { id: admin.id, name: admin.name },
+    });
+    expect(Object.keys(result.body.data[0].actor).sort()).toEqual([
+      'id',
+      'name',
+    ]);
+    expect(result.body.data[1].changedFields).toBe('title');
+  });
+  it('requires authentication, ownership and valid pagination', async () => {
+    const created = await repository.createRequest(other.id, input);
+    await request(app).get(`/api/requests/${created.id}/history`).expect(401);
+    await get(`/api/requests/${created.id}/history`).expect(404);
+    await get(`/api/requests/${randomUUID()}/history`, adminCookie).expect(404);
+    await get(`/api/requests/${created.id}/history?page=0`, adminCookie).expect(
+      400,
+    );
+    await get(
+      `/api/requests/${created.id}/history?limit=100`,
+      adminCookie,
+    ).expect(400);
+    await get(`/api/requests/${created.id}/history`, adminCookie).expect(200);
+  });
+  it('paginates newest first and excludes rejected actions', async () => {
+    const created = await repository.createRequest(member.id, input);
+    for (let n = 0; n < 6; n++)
+      await repository.updatePendingRequest(created.id, member.id, {
+        title: `Changed request ${n}`,
+      });
+    await patch(`/api/requests/${created.id}/status`, adminCookie)
+      .send({ status: 'RESOLVED' })
+      .expect(409);
+    const first = await get(
+      `/api/requests/${created.id}/history?limit=5`,
+    ).expect(200);
+    const second = await get(
+      `/api/requests/${created.id}/history?limit=5&page=2`,
+    ).expect(200);
+    expect(first.body.data).toHaveLength(5);
+    expect(second.body.data).toHaveLength(2);
+    expect(first.body.pagination).toMatchObject({
+      totalItems: 7,
+      totalPages: 2,
+    });
+    expect(first.body.data[4].id).toBeGreaterThan(second.body.data[0].id);
+  });
+  it('records member cancellation without logging rejected terminal changes', async () => {
+    const created = await repository.createRequest(member.id, input);
+    await request(app)
+      .delete(`/api/requests/${created.id}`)
+      .set('Origin', origin)
+      .set('Cookie', memberCookie)
+      .expect(204);
+    await patch(`/api/requests/${created.id}/status`, adminCookie)
+      .send({ status: 'IN_PROGRESS' })
+      .expect(409);
+    const history = await repository.listHistory(created.id, {
+      page: 1,
+      limit: 10,
+    });
+    expect(history.data).toHaveLength(2);
+    expect(history.data[0]).toMatchObject({
+      type: 'STATUS_CHANGED',
+      actorId: member.id,
+      fromStatus: 'PENDING',
+      toStatus: 'CANCELLED',
+    });
+  });
+  it('rolls back the status if recording history fails', async () => {
+    const created = await repository.createRequest(member.id, input);
+    await database.db.$executeRawUnsafe(
+      `CREATE TRIGGER reject_history BEFORE INSERT ON RequestActivity BEGIN SELECT RAISE(ABORT, 'history write failed'); END`,
+    );
+    try {
+      await expect(
+        repository.transitionRequest(
+          created.id,
+          'PENDING',
+          'IN_PROGRESS',
+          admin.id,
+        ),
+      ).rejects.toThrow();
+      expect((await repository.findRequest(created.id))?.status).toBe(
+        'PENDING',
+      );
+      expect(
+        (await repository.listHistory(created.id, { page: 1, limit: 10 })).data,
+      ).toHaveLength(1);
+    } finally {
+      await database.db.$executeRawUnsafe('DROP TRIGGER reject_history');
+    }
   });
 });
