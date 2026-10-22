@@ -374,9 +374,25 @@
 .home-about-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 95px;
+  align-items: center;
+  gap: 60px;
 }
-.home-about-copy p {
+.home-about-visual {
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid #e2eaf4;
+  border-radius: 18px;
+  background: #f0f6fc;
+}
+.home-about-visual img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.home-about-copy h2 {
+  margin-bottom: 20px;
+}
+.home-about-copy > p:not(.home-eyebrow) {
   font-size: 15px;
   line-height: 1.9;
 }
@@ -603,7 +619,7 @@
     grid-template-columns: 1fr;
     gap: 26px;
   }
-  .home-about-copy p {
+  .home-about-copy > p:not(.home-eyebrow) {
     font-size: 14px;
   }
   .home-cta-inner {

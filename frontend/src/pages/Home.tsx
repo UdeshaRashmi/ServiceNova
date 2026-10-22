@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { Logo } from '../components/ui';
 import { useAuth } from '../contexts/AuthContext';
+import aboutCollaboration from '../images/about-collaboration.png';
 import './home.css';
 
 const steps = [
@@ -287,15 +288,23 @@ export function Home() {
           aria-labelledby="about-title"
         >
           <div className="home-container home-about-grid">
-            <div>
+            <figure className="home-about-visual">
+              <img
+                src={aboutCollaboration}
+                alt="Illustration of colleagues organizing service requests and reviewing a completed task."
+                width={1536}
+                height={1024}
+                loading="lazy"
+                decoding="async"
+              />
+            </figure>
+            <div className="home-about-copy">
               <p className="home-eyebrow">ABOUT SERVICENOVA</p>
               <h2 id="about-title">
                 Less back-and-forth.
                 <br />
                 More getting things done.
               </h2>
-            </div>
-            <div className="home-about-copy">
               <p>
                 ServiceNova is a service request management system built to give
                 everyday requests a clear home. It connects the people asking
