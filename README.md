@@ -102,6 +102,22 @@ Open http://localhost:5173/register to create a member account, or http://localh
 
 Stop either server with `Ctrl+C` in its terminal. The API checks table availability at startup; run migrations first. No default admin or runtime demo data is inserted automatically.
 
+## Browse database data with Prisma Studio
+
+After applying migrations, open a separate PowerShell terminal in the project root:
+
+```powershell
+cd backend
+$studioDatabasePath = (Resolve-Path '.\prisma\dev.db').Path.Replace('\', '/')
+node scripts/prisma.mjs studio --port 5555 --browser none --url "file:///$studioDatabasePath"
+```
+
+This builds the absolute Windows file URL automatically, including when the project path contains spaces. If you configured a different `DATABASE_URL`, replace `.\prisma\dev.db` with that database's actual file path.
+
+Open http://localhost:5555 in your browser. Select **User** to view accounts, emails and roles, or **ServiceRequest** to view requests, owners, priorities and statuses. Studio reads the actual local database and can run independently of the frontend and API servers.
+
+Keep the Studio terminal running while browsing. Stop it with `Ctrl+C`. If Studio is already running on port 5555, use its existing browser URL.
+
 ## Environment variables
 
 See [backend/.env.example](backend/.env.example) and [frontend/.env.example](frontend/.env.example).
