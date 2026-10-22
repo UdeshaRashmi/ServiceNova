@@ -1,9 +1,9 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { RequestForm } from '../components/RequestForm';
-import { AuthPage } from '../pages/AuthPage';
+import { AuthPage, authSchema } from '../pages/AuthPage';
 
 const auth = vi.hoisted(() => ({
   user: null,
@@ -11,6 +11,10 @@ const auth = vi.hoisted(() => ({
   register: vi.fn(),
 }));
 vi.mock('../contexts/AuthContext', () => ({ useAuth: () => auth }));
+
+beforeEach(() => {
+  vi.resetAllMocks();
+});
 
 describe('request form', () => {
   it('rejects missing details before making an API submission', async () => {
@@ -99,6 +103,90 @@ describe('authentication forms', () => {
     await user.type(screen.getByLabelText('Password'), 'test-password');
     await user.click(screen.getByRole('button', { name: /^create account$/i }));
     expect(await screen.findByText(/Enter your full name/)).toBeVisible();
+    expect(screen.getByRole('textbox', { name: /^Full name/ })).toHaveFocus();
     expect(auth.register).not.toHaveBeenCalled();
+  });
+});
+
+describe('validation boundaries and feedback', () => {
+  it('rejects whitespace-only request text without submission', async () => {
+    const submit = vi.fn();
+    render(
+      <MemoryRouter>
+        <RequestForm onSubmit={submit} />
+      </MemoryRouter>,
+    );
+    fireEvent.change(screen.getByLabelText(/Request title/), {
+      target: { value: '      ' },
+    });
+    fireEvent.change(screen.getByLabelText(/^Description/), {
+      target: { value: ' '.repeat(25) },
+    });
+    await userEvent.click(
+      screen.getByRole('button', { name: /Submit request/ }),
+    );
+    expect(await screen.findByText('Use at least 5 characters.')).toBeVisible();
+    expect(submit).not.toHaveBeenCalled();
+  });
+  it('validates a touched request field before submitting', async () => {
+    render(
+      <MemoryRouter>
+        <RequestForm onSubmit={vi.fn()} />
+      </MemoryRouter>,
+    );
+    const input = screen.getByLabelText(/Request title/);
+    await userEvent.click(input);
+    await userEvent.tab();
+    expect(await screen.findByText('Use at least 5 characters.')).toBeVisible();
+    expect(input).toHaveAccessibleDescription('Use at least 5 characters.');
+  });
+  it('normalizes email before calling login', async () => {
+    auth.login.mockResolvedValueOnce(undefined);
+    render(
+      <MemoryRouter>
+        <AuthPage />
+      </MemoryRouter>,
+    );
+    fireEvent.change(screen.getByLabelText('Email address'), {
+      target: { value: '  ALEX@EXAMPLE.COM  ' },
+    });
+    fireEvent.change(screen.getByLabelText('Password'), {
+      target: { value: 'test-password' },
+    });
+    await userEvent.click(screen.getByRole('button', { name: /^Sign in$/ }));
+    await waitFor(() =>
+      expect(auth.login).toHaveBeenCalledWith({
+        email: 'alex@example.com',
+        password: 'test-password',
+      }),
+    );
+  });
+  it('keeps registration rules and email/password upper bounds in the schema', () => {
+    const valid = {
+      name: 'Alex',
+      email: 'alex@example.com',
+      password: 'test-password',
+    };
+    expect(authSchema(true).safeParse({ ...valid, name: ' ' }).success).toBe(
+      false,
+    );
+    expect(
+      authSchema(true).safeParse({ ...valid, password: 'short' }).success,
+    ).toBe(false);
+    expect(
+      authSchema(true).safeParse({
+        ...valid,
+        email: 'a'.repeat(255) + '@example.com',
+      }).success,
+    ).toBe(false);
+    expect(
+      authSchema(true).safeParse({ ...valid, password: 'x'.repeat(129) })
+        .success,
+    ).toBe(false);
+    // Login passes nonempty credentials to the server rather than applying registration policy.
+    expect(
+      authSchema(false).safeParse({ email: valid.email, password: 'short' })
+        .success,
+    ).toBe(true);
   });
 });

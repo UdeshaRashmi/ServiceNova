@@ -80,6 +80,7 @@ export function RequestList() {
             <Search size={17} />
             <input
               aria-label="Search requests"
+              maxLength={200}
               placeholder="Search title or description…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}

@@ -3,8 +3,10 @@ import { categories, priorities, statuses } from '../types/domain.js';
 
 const name = z.string().trim().min(2).max(100);
 const email = z
-  .email()
+  .string()
+  .trim()
   .max(254)
+  .pipe(z.email())
   .transform((value) => value.toLowerCase());
 const password = z.string().min(8).max(128);
 export const registerSchema = z.strictObject({ name, email, password });

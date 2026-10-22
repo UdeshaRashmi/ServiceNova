@@ -263,7 +263,7 @@ npm.cmd run test:e2e
 npm.cmd exec -- playwright show-report
 ```
 
-Backend tests include 30 isolated request-service unit tests, 57 API/security/documentation checks using repository doubles and 25 tests against freshly migrated temporary SQLite databases (112 total). Frontend tests cover 26 validation, access and UI behaviors, including sidebar collapse persistence, role-specific navigation and mobile drawer controls. Twelve browser workflows cover public Home navigation and the authenticated application, using a separate temporary database/API (3010) and Vite (5174). They do not reset or seed the development database. Test-only admin credentials are confined to this isolated environment.
+Backend tests include 30 isolated request-service unit tests, 58 API/security/documentation checks using repository doubles and 25 tests against freshly migrated temporary SQLite databases (113 total). Frontend tests cover 30 validation, access and UI behaviors, including sidebar collapse persistence, role-specific navigation and mobile drawer controls. Twelve browser workflows cover public Home navigation and the authenticated application, using a separate temporary database/API (3010) and Vite (5174). They do not reset or seed the development database. Test-only admin credentials are confined to this isolated environment.
 
 The [acceptance checklist](docs/acceptance.md) records final executed checks and verification limits. Failed browser traces/screenshots appear in ignored `frontend/test-results/`.
 
@@ -278,7 +278,7 @@ These screenshots were regenerated and visually inspected on 22 October 2026 usi
 - [Member dashboard](docs/screenshots/member-dashboard.png)
 - [Mobile request center](docs/screenshots/mobile-requests.png)
 
-Latest executed checks: backend and frontend production builds passed, along with **112 backend tests**, **26 frontend tests** and **12 Chromium workflows**. Browser coverage includes six full-stack workflows and six desktop/mobile accessibility scenarios. The accessibility checks cover public pages, member/admin screens, forms/errors, history, dialogs, keyboard focus and page overflow at 1280px and 320px. Swagger Try it out and cookie authentication remain covered. The compiled backend also served the packaged Swagger UI and OpenAPI document successfully.
+Latest executed checks: backend and frontend production builds passed, along with **113 backend tests**, **30 frontend tests** and **12 Chromium workflows**. Browser coverage includes six full-stack workflows and six desktop/mobile accessibility scenarios. The accessibility checks cover public pages, member/admin screens, forms/errors, history, dialogs, keyboard focus and page overflow at 1280px and 320px. Swagger Try it out and cookie authentication remain covered. The compiled backend also served the packaged Swagger UI and OpenAPI document successfully.
 
 Desktop and mobile dashboard captures were visually inspected after the dashboard redesign. Automated accessibility and keyboard checks are documented in [accessibility review](docs/accessibility.md). Physical-device, assistive-technology and full WCAG reviews remain pending. See [acceptance details](docs/acceptance.md) for verification scope and submission tasks.
 
@@ -306,3 +306,20 @@ If the backend port differs from 3000, start Vite with the matching target in it
 - No public deployment or demo video is claimed. Future improvements include password recovery, notifications, full-text search, shared rate limiting and PostgreSQL hosting.
 
 Demo video: to be recorded; see [demo checklist](docs/demo-checklist.md).
+
+## Form validation
+
+Frontend forms use React Hook Form and Zod, with feedback after a field is touched and invalid submissions focused on the first failing field. The backend validates independently, including requests sent outside the browser.
+
+| Field                 | Validation                                                         |
+| --------------------- | ------------------------------------------------------------------ |
+| Full/display name     | Trimmed, 2-100 characters                                          |
+| Email                 | Valid email, at most 254 characters, trimmed and lowercased        |
+| Registration password | 8-128 characters; password text is not trimmed                     |
+| Login password        | Nonempty, at most 128 characters; verified against the stored hash |
+| Request title         | Trimmed, 5-150 characters                                          |
+| Request description   | Trimmed, 20-5,000 characters                                       |
+| Category/priority     | Only the documented enum values                                    |
+| Search text           | At most 200 characters; blank search clears the text filter        |
+
+Create/edit forms share the same request rules. Inputs include browser length constraints and accessible field errors. Status, owner, role and timestamps remain controlled by the backend rather than editable form fields.

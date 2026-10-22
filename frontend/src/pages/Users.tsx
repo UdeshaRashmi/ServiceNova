@@ -44,6 +44,7 @@ export function Users() {
             <input
               placeholder="Search name or email…"
               aria-label="Search users"
+              maxLength={200}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -155,6 +156,7 @@ function NameForm({
     formState: { errors, isSubmitting },
   } = useForm<{ name: string }>({
     resolver: zodResolver(userSchema),
+    mode: 'onTouched',
     defaultValues: { name },
   });
   async function submit(values: { name: string }) {
@@ -172,6 +174,9 @@ function NameForm({
         Display name
         <input
           {...register('name')}
+          required
+          minLength={2}
+          maxLength={100}
           aria-invalid={!!errors.name}
           aria-describedby={errors.name ? 'display-name-error' : undefined}
         />

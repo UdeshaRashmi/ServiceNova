@@ -71,3 +71,5 @@ Run the backend on port 3000 and the frontend on port 5173. Browser requests use
 5. Read history again to see the persisted transition and safe actor projection.
 
 Validation errors may include `error.details: [{field,message}]`. Common statuses: 400 invalid input, 401 missing/expired session, 403 restricted role or origin, 404 missing/inaccessible resource, 409 duplicate/conflicting action, 429 rate limit, and 503 database readiness failure. Read-only liveness/readiness endpoints are `/api/health` and `/api/ready`.
+
+Email values are trimmed and lowercased before registration/login and duplicate-account checks, with a 254-character maximum. Password values are never trimmed. Registration requires 8-128 characters; login accepts nonempty credentials up to 128 characters for verification. Frontend input limits and touched-field feedback supplement authoritative server validation.

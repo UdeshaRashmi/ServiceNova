@@ -15,15 +15,39 @@ import { useAuth } from '../contexts/AuthContext';
 import { errorMessage } from '../services/api';
 import { Logo } from '../components/ui';
 
-const schema = z.object({
-  name: z.string().trim().max(100).optional(),
-  email: z.email('Enter a valid email address.'),
-  password: z
-    .string()
-    .min(8, 'Use at least 8 characters.')
-    .max(128, 'Use no more than 128 characters.'),
-});
-type Values = z.infer<typeof schema>;
+export const authSchema = (registration: boolean) =>
+  z
+    .object({
+      name: z
+        .string()
+        .trim()
+        .max(100, 'Use no more than 100 characters.')
+        .optional(),
+      email: z
+        .string()
+        .trim()
+        .max(254, 'Use no more than 254 characters.')
+        .pipe(z.email('Enter a valid email address.'))
+        .transform((value) => value.toLowerCase()),
+      password: z
+        .string()
+        .min(
+          registration ? 8 : 1,
+          registration ? 'Use at least 8 characters.' : 'Enter your password.',
+        )
+        .max(128, 'Use no more than 128 characters.'),
+    })
+    .superRefine((values, context) => {
+      if (registration && (!values.name || values.name.length < 2)) {
+        context.addIssue({
+          code: 'custom',
+          path: ['name'],
+          message: 'Enter your full name (at least 2 characters).',
+        });
+      }
+    });
+
+type Values = z.infer<ReturnType<typeof authSchema>>;
 export function AuthPage({ register = false }: { register?: boolean }) {
   const auth = useAuth();
   const navigate = useNavigate();
@@ -33,17 +57,13 @@ export function AuthPage({ register = false }: { register?: boolean }) {
   const {
     register: field,
     handleSubmit,
-    setError: fieldError,
     formState: { errors, isSubmitting },
-  } = useForm<Values>({ resolver: zodResolver(schema) });
+  } = useForm<Values>({
+    resolver: zodResolver(authSchema(register)),
+    mode: 'onTouched',
+  });
   if (auth.user) return <Navigate to="/dashboard" replace />;
   async function submit(values: Values) {
-    if (register && (!values.name || values.name.length < 2)) {
-      fieldError('name', {
-        message: 'Enter your full name (at least 2 characters).',
-      });
-      return;
-    }
     setError('');
     try {
       if (register)
@@ -143,6 +163,9 @@ export function AuthPage({ register = false }: { register?: boolean }) {
                 Full name
                 <input
                   autoComplete="name"
+                  required
+                  minLength={2}
+                  maxLength={100}
                   placeholder="e.g. Alex Morgan"
                   {...field('name')}
                   aria-invalid={!!errors.name}
@@ -159,6 +182,8 @@ export function AuthPage({ register = false }: { register?: boolean }) {
               Email address
               <input
                 type="email"
+                required
+                maxLength={254}
                 autoComplete="email"
                 placeholder="you@company.com"
                 {...field('email')}
@@ -192,6 +217,9 @@ export function AuthPage({ register = false }: { register?: boolean }) {
                       : 'Enter your password'
                   }
                   {...field('password')}
+                  required
+                  minLength={register ? 8 : 1}
+                  maxLength={128}
                   aria-invalid={!!errors.password}
                 />
                 <button

@@ -37,6 +37,7 @@ export function RequestForm({
     formState: { errors, isSubmitting },
   } = useForm<RequestInput>({
     resolver: zodResolver(requestSchema),
+    mode: 'onTouched',
     defaultValues: initial || {
       title: '',
       description: '',
@@ -63,6 +64,9 @@ export function RequestForm({
             <input
               placeholder="Give your request a clear, short title"
               {...register('title')}
+              required
+              minLength={5}
+              maxLength={150}
               aria-required="true"
               aria-describedby={
                 errors.title ? `${fieldId}-title-error` : undefined
@@ -81,6 +85,9 @@ export function RequestForm({
               rows={7}
               placeholder="Tell us what happened, what you expected, and anything else that might help…"
               {...register('description')}
+              required
+              minLength={20}
+              maxLength={5000}
               aria-required="true"
               aria-describedby={
                 errors.description

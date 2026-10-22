@@ -77,7 +77,7 @@ describe('authentication', () => {
     const response = await post('/api/auth/register')
       .send({
         name: 'New Member',
-        email: 'NEW@example.com',
+        email: '  NEW@example.com  ',
         password: 'a-secure-password',
       })
       .expect(201);
@@ -495,5 +495,20 @@ describe('validation and security boundaries', () => {
     expect(response.headers['cache-control']).toBe('no-store');
     expect(response.headers['x-powered-by']).toBeUndefined();
     logger.mockRestore();
+  });
+});
+
+describe('email normalization', () => {
+  it('normalizes padded email for login and duplicate-registration checks', async () => {
+    await post('/api/auth/login')
+      .send({ email: '  ALEX@EXAMPLE.COM  ', password: 'test-password-123' })
+      .expect(200);
+    await post('/api/auth/register')
+      .send({
+        name: 'Duplicate Member',
+        email: ' ALEX@EXAMPLE.COM ',
+        password: 'different-password',
+      })
+      .expect(409);
   });
 });
