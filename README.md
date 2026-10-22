@@ -2,7 +2,7 @@
 
 **Simplify Requests. Accelerate Solutions.**
 
-A full-stack service request management application for the VisionRoot Software Engineering Intern technical assignment. Members submit and track requests; administrators manage work and workspace members. Requests, accounts, session revocation and dashboard metrics are persisted in SQLite through Prisma.
+A full-stack service request management application for the VisionRoot Software Engineering Intern technical assignment. Members submit and track requests; administrators manage work and workspace members. Requests, accounts, session revocation and request activity are persisted in SQLite through Prisma. The application includes a public landing page, member/admin dashboards, request history and interactive Swagger documentation.
 
 ## Features
 
@@ -10,12 +10,14 @@ A full-stack service request management application for the VisionRoot Software 
 - Separate member and administrator workspaces with protected routes and API authorization.
 - Request creation, pending-only edits/cancellation, detail views and controlled status changes.
 - Search, category/priority/status filters, newest/oldest sort and server-side pagination.
-- Role-scoped dashboard metrics and recent requests from real stored data.
+- Role-scoped dashboard metrics, clickable status charts and recent requests from real stored data.
+- A dashboard with larger typography, soft colors, clear actions and responsive summary cards.
+- Paginated request history showing who changed a request, when, edited field names and status transitions.
 - Administrator user search, details, request counts and display-name updates.
 - Responsive navigation, validation feedback, skeletons, empty/error states, toasts and confirmation dialogs.
 - Minimal light sidebar with remembered desktop collapse mode, role-specific links, account controls and a mobile drawer with Escape/focus handling.
 - Public Home page with product introduction, features, Submit/Track/Resolve workflow, About ServiceNova and account entry links.
-- Controlled administrator seeding, migrations, OpenAPI and isolated automated tests.
+- Controlled administrator seeding, additive migrations, locally served Swagger UI/OpenAPI and isolated automated tests.
 
 ## Technology and architecture
 
@@ -31,6 +33,8 @@ A full-stack service request management application for the VisionRoot Software 
 
 React communicates with Express through `/api`. Middleware verifies origins, sessions and roles; services enforce ownership and request rules; the Prisma repository performs database queries and conditional writes. See [architecture and database schema](docs/database.md).
 
+React with Vite keeps the client separate from the REST API and provides a focused TypeScript development setup. Express separates routing, validation, business rules and persistence. Prisma provides typed database access and migrations; SQLite makes the assignment easy to run locally without a database service. Zod validates inputs on both sides, while the backend remains authoritative for security and workflow rules.
+
 ```text
 frontend/
   src/
@@ -38,20 +42,22 @@ frontend/
   e2e/                  Real-browser full-stack workflows
 backend/
   prisma/               Schema and checked-in SQL migrations
-  scripts/              Cross-platform Prisma CLI wrapper
+  scripts/              Prisma CLI wrapper and OpenAPI build copy
   src/
     controllers/ middleware/ repositories/ routes/ services/ tests/ types/ utils/ validators/
+    swagger.ts          Swagger UI and raw OpenAPI routes
 docs/
   api-contract.md       API behavior and response contract
   openapi.json          OpenAPI 3.0 endpoint documentation
   database.md           Schema, indexes, transactions and portability
   acceptance.md         Executed checks and submission tasks
   demo-checklist.md     Suggested interview/demo walkthrough
+  screenshots/          Verified desktop/mobile captures
 ```
 
 ## Prerequisites
 
-Use Node.js 22.12+ in the 22 LTS line, Node.js 24 LTS, or a version supported by the package engines, and npm. Commands below use `npm.cmd` for Windows PowerShell; use `npm` on macOS/Linux. No external database server is required.
+Use Node.js matching the package engines (`^22.12.0 || ^24.0.0 || >=26.0.0`) and npm. Commands below use `npm.cmd` for Windows PowerShell; use `npm` on macOS/Linux. No external database server is required.
 
 ## Installation and database setup
 
@@ -63,7 +69,7 @@ npm.cmd ci
 Copy-Item .env.example .env
 ```
 
-Skip the copy if `.env` already exists. Generate and write a random signing secret directly into the local environment file:
+Skip the copy if `.env` already exists. For first-time setup, generate and write a random signing secret directly into the local environment file. Keep an existing configured signing secret when returning to the project:
 
 ```powershell
 node -e "const fs=require('node:fs'); const crypto=require('node:crypto'); const text=fs.readFileSync('.env','utf8'); fs.writeFileSync('.env',text.replace(/^JWT_SECRET=.*$/m,'JWT_SECRET='+crypto.randomBytes(48).toString('hex')));"
@@ -101,6 +107,8 @@ Open http://localhost:5173 for the public Home page. Use `/register` to create a
 
 - Liveness: http://localhost:3000/api/health
 - Database readiness: http://localhost:3000/api/ready
+- Interactive Swagger UI: http://localhost:5173/api/docs/
+- Raw OpenAPI JSON: http://localhost:3000/api/openapi.json
 
 Stop either server with `Ctrl+C` in its terminal. The API checks table availability at startup; run migrations first. No default admin or runtime demo data is inserted automatically.
 
@@ -116,9 +124,19 @@ node scripts/prisma.mjs studio --port 5555 --browser none --url "file:///$studio
 
 This builds the absolute Windows file URL automatically, including when the project path contains spaces. If you configured a different `DATABASE_URL`, replace `.\prisma\dev.db` with that database's actual file path.
 
-Open http://localhost:5555 in your browser. Select **User** to view accounts, emails and roles, or **ServiceRequest** to view requests, owners, priorities and statuses. Studio reads the actual local database and can run independently of the frontend and API servers.
+Open http://localhost:5555 in your browser. Select **User** to view accounts, emails and roles, **ServiceRequest** to view requests, owners, priorities and statuses, or **RequestActivity** to view recorded changes and actors. Studio reads the actual local database and can run independently of the frontend and API servers.
 
 Keep the Studio terminal running while browsing. Stop it with `Ctrl+C`. If Studio is already running on port 5555, use its existing browser URL.
+
+## Database overview
+
+| Model             | Purpose                                                               |
+| ----------------- | --------------------------------------------------------------------- |
+| `User`            | Account details, password hash, role and session version              |
+| `ServiceRequest`  | Request content, owner, category, priority, status and timestamps     |
+| `RequestActivity` | Creation, edits, status changes and migration-time tracking baselines |
+
+A user owns many requests; a request has many activity events. Activity references an optional actor. Unique email, foreign keys, enum checks and listing/history indexes support data integrity and retrieval. Mutations and their activity entries commit together. See [database documentation](docs/database.md) for the schema, migrations and transaction details.
 
 ## Environment variables
 
@@ -180,6 +198,14 @@ RESOLVED / CANCELLED -> terminal
 
 DELETE cancels a request and preserves its history. General PATCH never accepts status, owner or timestamps. Profile and roles are read-only in the UI. Status changes and pending edits use atomic database predicates to reject stale/concurrent actions.
 
+## Request history and status chart
+
+Open **My requests** (member) or **All requests** (admin), then click a request title. The **Request history** timeline appears below **Request details**. It lists creation, actual edits and status transitions, newest first, with actor and timestamp. Older entries are available through pagination. Actor names reflect the current account display name; edited field names are recorded without storing previous description content.
+
+Requests that existed before activity tracking have a clearly labelled **History tracking started** event. Earlier changes cannot be reconstructed. Rejected actions and edits that do not change values create no events.
+
+The dashboard chart uses role-scoped database totals for Pending, In Progress, Resolved and Cancelled. Clicking a chart row or summary card opens the corresponding request list. New accounts see empty states rather than sample data.
+
 ## Swagger documentation
 
 Start the frontend and backend, then open **[Swagger UI](http://localhost:5173/api/docs/)**. The raw specification is available at [OpenAPI JSON](http://localhost:5173/api/openapi.json). The same UI is also served at `http://localhost:3000/api/docs/`; for local interactive testing, use the frontend URL so the browser sends the configured trusted Origin.
@@ -192,7 +218,7 @@ Start the frontend and backend, then open **[Swagger UI](http://localhost:5173/a
 
 The **Authorize** dialog is not needed for cookie login. Swagger's Execute buttons call the real API and mutations persist to the selected database. Sessions, role checks, validation and origin protection remain enforced. API rate limits also apply.
 
-The specification in `docs/openapi.json` is the single source. Backend builds copy it to `backend/dist/openapi.json`; deploy that file with the compiled backend. Swagger JavaScript/CSS are served locally, and external spec validation is disabled. For a standalone backend or production reverse proxy, use a docs origin explicitly listed in `FRONTEND_ORIGINS` and route `/api` to the backend.
+The specification in [docs/openapi.json](docs/openapi.json) is the single source; this is the file to open in your editor or import into Postman. Backend builds copy it to `backend/dist/openapi.json`; deploy that file with the compiled backend. Swagger JavaScript/CSS are served locally, and external spec validation is disabled. For a standalone backend or production reverse proxy, use a docs origin explicitly listed in `FRONTEND_ORIGINS` and route `/api` to the backend.
 
 ## API reference
 
@@ -204,10 +230,12 @@ All resource responses use `{data: ...}`. Lists also include `pagination: {page,
 | GET                | /api/auth/me                                          |
 | GET, POST          | /api/requests                                         |
 | GET, PATCH, DELETE | /api/requests/:id                                     |
+| GET                | /api/requests/:id/history (owner or admin)            |
 | PATCH              | /api/requests/:id/status (admin only)                 |
 | GET                | /api/requests/metrics                                 |
 | GET                | /api/users, /api/users/:id (admin only)               |
 | PATCH              | /api/users/:id (admin display-name update)            |
+| GET                | /api/docs/, /api/openapi.json                         |
 | GET                | /api/health, /api/ready                               |
 
 See [API contract](docs/api-contract.md) and import [openapi.json](docs/openapi.json) into Swagger Editor or Postman for schemas, authentication, restrictions and error codes.
@@ -248,7 +276,22 @@ These screenshots were regenerated and visually inspected on 22 October 2026 usi
 - [Member dashboard](docs/screenshots/member-dashboard.png)
 - [Mobile request center](docs/screenshots/mobile-requests.png)
 
-Previously verified: both production builds, 76 backend tests, four Chromium full-stack workflows, migration replay/status/schema consistency, compiled API health/readiness, formatting checks, and zero-vulnerability dependency audits. The public Home and sidebar changes passed the frontend build and all 21 frontend tests. The updated five-workflow Chromium suite passed on 22 October 2026 after an approved run outside the sandbox, including history and dashboard chart assertions. See [acceptance details](docs/acceptance.md) for verification scope and remaining tasks.
+Latest executed checks: backend and frontend production builds passed, along with **82 backend tests**, **25 frontend tests** and **6 Chromium workflows**. Browser coverage includes Swagger Try it out with cookie authentication, public Home/mobile navigation, the member/admin request lifecycle with history/chart assertions, cancellation/profile/logout, admin user management and mobile navigation without horizontal overflow. The compiled backend also served the packaged Swagger UI and OpenAPI document successfully.
+
+Desktop and mobile dashboard captures were visually inspected after the dashboard redesign. Physical-device review and a full visual/accessibility review of all Home/history states remain pending. See [acceptance details](docs/acceptance.md) for verification scope and submission tasks.
+
+## Troubleshooting
+
+| Symptom                                                        | What to check                                                                                                                                                                                       |
+| -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Database is unavailable or migrations have not been applied.` | From `backend/`, run `npm.cmd run db:status`, `npm.cmd run db:migrate` and `npm.cmd run db:generate`, then restart the backend. Confirm `DATABASE_URL` points to the intended writable SQLite file. |
+| `Unable to start API listener. Check PORT and permissions.`    | Another server may already use port 3000. Stop the duplicate backend terminal with `Ctrl+C`, then start one backend process. If changing `PORT`, update the Vite proxy target too.                  |
+| Swagger mutations return an origin error                       | Open `http://localhost:5173/api/docs/` and use the exact frontend origin configured in `FRONTEND_ORIGINS`. Changing an Origin input cannot override the browser's actual Origin.                    |
+| Swagger returns 404 after updating                             | Restart the backend so the new routes load. For `npm.cmd start`, rebuild first with `npm.cmd run build`.                                                                                            |
+| PowerShell blocks `npm.ps1`                                    | Use the documented `npm.cmd` commands.                                                                                                                                                              |
+| Browser tests cannot start their API                           | Ports 3010 and 5174 must be available. A restricted execution environment may require permission to launch its child processes.                                                                     |
+
+If the backend port differs from 3000, start Vite with the matching target in its terminal, for example `$env:API_PROXY_TARGET = "http://localhost:3001"` before `npm.cmd run dev`. The API's `/api/ready` endpoint confirms database readiness.
 
 ## Assumptions and limitations
 
@@ -261,9 +304,3 @@ Previously verified: both production builds, 76 backend tests, four Chromium ful
 - No public deployment or demo video is claimed. Future improvements include password recovery, notifications, full-text search, shared rate limiting and PostgreSQL hosting.
 
 Demo video: to be recorded; see [demo checklist](docs/demo-checklist.md).
-
-## Request history and status chart
-
-The dashboard shows a clickable status breakdown from role-scoped database totals, including cancellations. Request details include paginated activity with actor, time, edited field names and status changes. Existing requests start with a clearly labelled tracking baseline. Apply the additive migration with `cd backend` then `npm.cmd run db:migrate` and restart the backend after updating. No database reset or reseed is needed.
-
-Verified for this update: both production builds, 81 backend tests, 25 frontend tests and database migration status. All five current Chromium workflows passed; refreshed desktop/mobile screenshots were inspected. A full visual review of the remaining Home/history states remains pending.
