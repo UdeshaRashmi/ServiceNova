@@ -263,7 +263,7 @@ npm.cmd run test:e2e
 npm.cmd exec -- playwright show-report
 ```
 
-Backend tests include 30 isolated request-service unit tests, 57 API/security/documentation checks using repository doubles and 25 tests against freshly migrated temporary SQLite databases (112 total). Frontend tests cover 25 validation, access and UI behaviors, including sidebar collapse persistence, role-specific navigation and mobile drawer controls. Twelve browser workflows cover public Home navigation and the authenticated application, using a separate temporary database/API (3010) and Vite (5174). They do not reset or seed the development database. Test-only admin credentials are confined to this isolated environment.
+Backend tests include 30 isolated request-service unit tests, 57 API/security/documentation checks using repository doubles and 25 tests against freshly migrated temporary SQLite databases (112 total). Frontend tests cover 26 validation, access and UI behaviors, including sidebar collapse persistence, role-specific navigation and mobile drawer controls. Twelve browser workflows cover public Home navigation and the authenticated application, using a separate temporary database/API (3010) and Vite (5174). They do not reset or seed the development database. Test-only admin credentials are confined to this isolated environment.
 
 The [acceptance checklist](docs/acceptance.md) records final executed checks and verification limits. Failed browser traces/screenshots appear in ignored `frontend/test-results/`.
 
@@ -278,7 +278,7 @@ These screenshots were regenerated and visually inspected on 22 October 2026 usi
 - [Member dashboard](docs/screenshots/member-dashboard.png)
 - [Mobile request center](docs/screenshots/mobile-requests.png)
 
-Latest executed checks: backend and frontend production builds passed, along with **112 backend tests**, **25 frontend tests** and **12 Chromium workflows**. Browser coverage includes six full-stack workflows and six desktop/mobile accessibility scenarios. The accessibility checks cover public pages, member/admin screens, forms/errors, history, dialogs, keyboard focus and page overflow at 1280px and 320px. Swagger Try it out and cookie authentication remain covered. The compiled backend also served the packaged Swagger UI and OpenAPI document successfully.
+Latest executed checks: backend and frontend production builds passed, along with **112 backend tests**, **26 frontend tests** and **12 Chromium workflows**. Browser coverage includes six full-stack workflows and six desktop/mobile accessibility scenarios. The accessibility checks cover public pages, member/admin screens, forms/errors, history, dialogs, keyboard focus and page overflow at 1280px and 320px. Swagger Try it out and cookie authentication remain covered. The compiled backend also served the packaged Swagger UI and OpenAPI document successfully.
 
 Desktop and mobile dashboard captures were visually inspected after the dashboard redesign. Automated accessibility and keyboard checks are documented in [accessibility review](docs/accessibility.md). Physical-device, assistive-technology and full WCAG reviews remain pending. See [acceptance details](docs/acceptance.md) for verification scope and submission tasks.
 

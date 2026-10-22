@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '../contexts/AuthContext';
 import { requestApi, errorMessage, type RequestInput } from '../services/api';
@@ -10,10 +10,7 @@ import { RequestForm } from '../components/RequestForm';
 export function CreateRequest() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  if (user?.role === 'ADMIN')
-    return (
-      <ErrorState message="Requests are submitted from a member account." />
-    );
+  if (user?.role === 'ADMIN') return <Navigate to="/requests" replace />;
   async function submit(values: RequestInput) {
     try {
       const request = await requestApi.create(values);

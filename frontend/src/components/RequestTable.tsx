@@ -11,7 +11,18 @@ export function RequestTable({
   requests: ServiceRequest[];
   admin?: boolean;
 }) {
-  if (!requests.length) return <EmptyState />;
+  if (!requests.length)
+    return (
+      <EmptyState
+        title="No requests yet"
+        description={
+          admin
+            ? 'No requests match this view. Member requests will appear here when submitted; try changing any active filters.'
+            : undefined
+        }
+        action={!admin}
+      />
+    );
   return (
     <div
       className="table-scroll"

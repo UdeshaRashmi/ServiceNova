@@ -7,7 +7,7 @@ Last review: 22 October 2026. This file reports the current verified state; prev
 | Check              | Result               | Scope                                                                                                      |
 | ------------------ | -------------------- | ---------------------------------------------------------------------------------------------------------- |
 | Backend tests      | 112 passed           | 30 isolated service unit tests, 57 API/security/documentation checks, 25 migrated SQLite integration tests |
-| Frontend tests     | 25 passed            | Validation, route access, navigation, chart counts and history states                                      |
+| Frontend tests     | 26 passed            | Validation, route access, navigation, chart counts and history states                                      |
 | Chromium workflows | 12 passed            | Six full-stack workflows and six accessibility/keyboard scenarios; all passed in one final run             |
 | Production builds  | Backend and frontend | TypeScript compilation, Vite output and packaged OpenAPI                                                   |
 
