@@ -10,9 +10,9 @@ A full-stack **Service Request Management System** built for the VisionRoot Soft
 
 The application includes a public Home page, responsive role-based dashboards, persistent request history, a status chart and interactive Swagger documentation. Accounts and requests are stored in SQLite through Prisma; the running application uses real database data rather than an in-memory demo store.
 
-**React 19 ? TypeScript ? Vite 7 ? Express 5 ? Prisma 7 ? SQLite**
+**React 19 &middot; TypeScript &middot; Vite 7 &middot; Express 5 &middot; Prisma 7 &middot; SQLite**
 
-[Repository](https://github.com/UdeshaRashmi/visionroot-software-engineering-assignment) ? [API specification](docs/openapi.json) ? [Database design](docs/database.md) ? [Verification checklist](docs/acceptance.md)
+[Repository](https://github.com/UdeshaRashmi/visionroot-software-engineering-assignment) &middot; [API specification](docs/openapi.json) &middot; [Database design](docs/database.md) &middot; [Verification checklist](docs/acceptance.md)
 
 ## Contents
 
